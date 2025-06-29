@@ -1,0 +1,102 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Management - MOS Burgers</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <img src="https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=50&h=50&fit=crop&crop=center" alt="Logo" class="nav-logo">
+                <h2>MOS Burgers</h2>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html" class="nav-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="store-management.html" class="nav-link"><i class="fas fa-store"></i> Store Management</a></li>
+                <li><a href="order-management.html" class="nav-link"><i class="fas fa-shopping-cart"></i> Order Management</a></li>
+                <li><a href="customer-management.html" class="nav-link active"><i class="fas fa-users"></i> Customer Management</a></li>
+                <li><a href="reports.html" class="nav-link"><i class="fas fa-chart-bar"></i> Reports</a></li>
+                <li><a href="index.html" class="nav-link logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <h1>Customer Management</h1>
+                <button class="btn btn-primary" id="addCustomerBtn">
+                    <i class="fas fa-plus"></i> Add Customer
+                </button>
+            </header>
+            
+            <div class="customer-search">
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="customerSearchInput" placeholder="Search customers by name, phone, or email...">
+                </div>
+                <select id="sortBy">
+                    <option value="name">Sort by Name</option>
+                    <option value="joinDate">Sort by Join Date</option>
+                    <option value="orders">Sort by Orders</option>
+                </select>
+            </div>
+            
+            <div class="customer-grid" id="customerGrid">
+                <!-- Customers will be populated by JavaScript -->
+            </div>
+        </main>
+    </div>
+    
+    <!-- Customer Modal -->
+    <div id="customerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="customerModalTitle">Add Customer</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="customerForm">
+                <div class="form-group">
+                    <label for="customerName">Full Name</label>
+                    <input type="text" id="customerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="customerPhone">Phone Number</label>
+                    <input type="tel" id="customerPhone" required>
+                </div>
+                <div class="form-group">
+                    <label for="customerEmail">Email Address</label>
+                    <input type="email" id="customerEmail">
+                </div>
+                <div class="form-group">
+                    <label for="customerAddress">Address</label>
+                    <textarea id="customerAddress" rows="3"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelCustomerBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Customer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Customer Details Modal -->
+    <div id="customerDetailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Customer Details</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div id="customerDetailsContent">
+                <!-- Customer details will be populated here -->
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/customer-management.js"></script>
+</body>
+</html>

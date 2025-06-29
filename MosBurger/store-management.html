@@ -1,0 +1,119 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Management - MOS Burgers</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <img src="https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=50&h=50&fit=crop&crop=center" alt="Logo" class="nav-logo">
+                <h2>MOS Burgers</h2>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html" class="nav-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="store-management.html" class="nav-link active"><i class="fas fa-store"></i> Store Management</a></li>
+                <li><a href="order-management.html" class="nav-link"><i class="fas fa-shopping-cart"></i> Order Management</a></li>
+                <li><a href="customer-management.html" class="nav-link"><i class="fas fa-users"></i> Customer Management</a></li>
+                <li><a href="reports.html" class="nav-link"><i class="fas fa-chart-bar"></i> Reports</a></li>
+                <li><a href="index.html" class="nav-link logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <h1>Store Management</h1>
+                <button class="btn btn-primary" id="addItemBtn">
+                    <i class="fas fa-plus"></i> Add Item
+                </button>
+            </header>
+            
+            <div class="filters-section">
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchInput" placeholder="Search items by name or code..." class="search-input">
+                </div>
+                <select id="categoryFilter" class="filter-select">
+                    <option value="">All Categories</option>
+                    <option value="Burgers">Burgers</option>
+                    <option value="Submarines">Submarines</option>
+                    <option value="Fries">Fries</option>
+                    <option value="Pasta">Pasta</option>
+                    <option value="Chicken">Chicken</option>
+                    <option value="Beverages">Beverages</option>
+                </select>
+            </div>
+            
+            <div class="items-grid" id="itemsGrid">
+                <!-- Items will be populated by JavaScript -->
+            </div>
+        </main>
+    </div>
+    
+    <!-- Item Modal -->
+    <div id="itemModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Item</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="itemForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="itemCode">Item Code</label>
+                        <input type="text" id="itemCode" name="itemCode" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" name="category" required>
+                            <option value="">Select Category</option>
+                            <option value="Burgers">Burgers</option>
+                            <option value="Submarines">Submarines</option>
+                            <option value="Fries">Fries</option>
+                            <option value="Pasta">Pasta</option>
+                            <option value="Chicken">Chicken</option>
+                            <option value="Beverages">Beverages</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group full-width">
+                    <label for="itemName">Item Name</label>
+                    <input type="text" id="itemName" name="itemName" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="price">Price (LKR)</label>
+                        <input type="number" id="price" name="price" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="discount">Discount (%)</label>
+                        <input type="number" id="discount" name="discount" min="0" max="100" value="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="quantity">Quantity</label>
+                        <input type="number" id="quantity" name="quantity" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expiryDate">Expiry Date (Optional)</label>
+                        <input type="date" id="expiryDate" name="expiryDate">
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="js/store-management.js"></script>
+</body>
+</html>

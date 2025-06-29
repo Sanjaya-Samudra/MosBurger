@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management - MOS Burgers</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <img src="https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=50&h=50&fit=crop&crop=center" alt="Logo" class="nav-logo">
+                <h2>MOS Burgers</h2>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html" class="nav-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="store-management.html" class="nav-link"><i class="fas fa-store"></i> Store Management</a></li>
+                <li><a href="order-management.html" class="nav-link active"><i class="fas fa-shopping-cart"></i> Order Management</a></li>
+                <li><a href="customer-management.html" class="nav-link"><i class="fas fa-users"></i> Customer Management</a></li>
+                <li><a href="reports.html" class="nav-link"><i class="fas fa-chart-bar"></i> Reports</a></li>
+                <li><a href="index.html" class="nav-link logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <h1>Order Management</h1>
+                <button class="btn btn-primary" id="newOrderBtn">
+                    <i class="fas fa-plus"></i> New Order
+                </button>
+            </header>
+            
+            <div class="order-container">
+                <div class="order-panel">
+                    <h2>Create Order</h2>
+                    <div class="customer-section">
+                        <div class="search-container">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" id="customerSearch" placeholder="Search customer by phone or name...">
+                        </div>
+                        <button class="btn btn-secondary" id="addCustomerBtn">Add New Customer</button>
+                    </div>
+                    
+                    <div class="item-search-section">
+                        <div class="search-container">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" id="itemSearch" placeholder="Search items by name, code, or category...">
+                        </div>
+                        <div id="itemSuggestions" class="suggestions-dropdown"></div>
+                    </div>
+                    
+                    <div class="cart-section">
+                        <h3>Cart Items</h3>
+                        <div id="cartItems" class="cart-items"></div>
+                        
+                        <div class="order-summary">
+                            <div class="discount-section">
+                                <label for="orderDiscount">Order Discount (%):</label>
+                                <input type="number" id="orderDiscount" min="0" max="100" value="0">
+                            </div>
+                            <div class="summary-line">
+                                <span>Subtotal:</span>
+                                <span id="subtotal">LKR 0.00</span>
+                            </div>
+                            <div class="summary-line">
+                                <span>Discount:</span>
+                                <span id="discountAmount">LKR 0.00</span>
+                            </div>
+                            <div class="summary-line total">
+                                <span>Total:</span>
+                                <span id="totalAmount">LKR 0.00</span>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary" id="placeOrderBtn" disabled>Place Order</button>
+                    </div>
+                </div>
+                
+                <div class="orders-panel">
+                    <h2>Recent Orders</h2>
+                    <div class="search-orders">
+                        <div class="search-container">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" id="orderSearch" placeholder="Search by Order ID or Customer...">
+                        </div>
+                    </div>
+                    <div id="ordersList" class="orders-list"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Customer Modal -->
+    <div id="customerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Customer</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="customerForm">
+                <div class="form-group">
+                    <label for="customerName">Name</label>
+                    <input type="text" id="customerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="customerPhone">Phone</label>
+                    <input type="tel" id="customerPhone" required>
+                </div>
+                <div class="form-group">
+                    <label for="customerEmail">Email</label>
+                    <input type="email" id="customerEmail">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelCustomerBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Customer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="js/order-management.js"></script>
+</body>
+</html>
