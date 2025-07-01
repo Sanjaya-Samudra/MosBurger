@@ -9,25 +9,23 @@ const initialItems = [
     // Burgers
     { code: 'B1001', name: 'Classic Burger (Large)', category: 'Burgers', price: 750.00, discount: 0, quantity: 25, image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300&h=200&fit=crop' },
     { code: 'B1002', name: 'Classic Burger (Regular)', category: 'Burgers', price: 1500.00, discount: 15, quantity: 30, image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=300&h=200&fit=crop' },
-    { code: 'B1003', name: 'Turkey Burger', category: 'Burgers', price: 1600.00, discount: 0, quantity: 20, image: 'https://images.unsplash.com/photo-1553979459-d2229ba7433a?w=300&h=200&fit=crop' },
-    { code: 'B1004', name: 'Chicken Burger (Large)', category: 'Burgers', price: 1400.00, discount: 0, quantity: 35, image: 'https://images.unsplash.com/photo-1606755962773-d324e9a13086?w=300&h=200&fit=crop' },
     { code: 'B1005', name: 'Chicken Burger (Regular)', category: 'Burgers', price: 800.00, discount: 20, quantity: 40, image: 'https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=300&h=200&fit=crop' },
-    
+
     // Submarines
     { code: 'B1016', name: 'Crispy Chicken Submarine (Large)', category: 'Submarines', price: 2000.00, discount: 0, quantity: 15, image: 'https://images.unsplash.com/photo-1555072956-7758afb20e8f?w=300&h=200&fit=crop' },
     { code: 'B1017', name: 'Crispy Chicken Submarine (Regular)', category: 'Submarines', price: 1500.00, discount: 0, quantity: 20, image: 'https://images.unsplash.com/photo-1539252554453-80ab65ce3586?w=300&h=200&fit=crop' },
-    
+
     // Fries
     { code: 'B1025', name: 'Steak Fries (Large)', category: 'Fries', price: 1200.00, discount: 0, quantity: 50, image: 'https://images.unsplash.com/photo-1576107232684-1279f390859f?w=300&h=200&fit=crop' },
     { code: 'B1027', name: 'French Fries (Large)', category: 'Fries', price: 800.00, discount: 0, quantity: 60, image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=300&h=200&fit=crop' },
-    
+
     // Beverages
-    { code: 'B1044', name: 'Pepsi (330ml)', category: 'Beverages', price: 990.00, discount: 5, quantity: 100, image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=300&h=200&fit=crop' },
+    { code: 'B1044', name: 'Pepsi (330ml)', category: 'Beverages', price: 990.00, discount: 5, quantity: 100, image: 'https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cGVwc2l8ZW58MHx8MHx8fDA%3D' },
     { code: 'B1045', name: 'Coca-Cola (330ml)', category: 'Beverages', price: 1230.00, discount: 0, quantity: 80, image: 'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=300&h=200&fit=crop' }
 ];
 
 // Load items from localStorage or use initial data
-let foodItems = JSON.parse(localStorage.getItem('foodItems')) || initialItems;
+let foodItems = initialItems;
 
 // Save items to localStorage
 function saveItems() {
@@ -38,11 +36,11 @@ function saveItems() {
 function renderItems(items = foodItems) {
     const grid = document.getElementById('itemsGrid');
     grid.innerHTML = '';
-    
+
     items.forEach(item => {
         const isExpired = item.expiryDate && new Date(item.expiryDate) < new Date();
         const discountPrice = item.discount > 0 ? item.price - (item.price * item.discount / 100) : null;
-        
+
         const itemCard = document.createElement('div');
         itemCard.className = 'item-card';
         itemCard.innerHTML = `
@@ -75,7 +73,7 @@ function renderItems(items = foodItems) {
                 </div>
             </div>
         `;
-        
+
         grid.appendChild(itemCard);
     });
 }
@@ -84,20 +82,20 @@ function renderItems(items = foodItems) {
 function filterItems() {
     const category = document.getElementById('categoryFilter').value;
     const search = document.getElementById('searchInput').value.toLowerCase();
-    
+
     let filtered = foodItems;
-    
+
     if (category) {
         filtered = filtered.filter(item => item.category === category);
     }
-    
+
     if (search) {
-        filtered = filtered.filter(item => 
+        filtered = filtered.filter(item =>
             item.name.toLowerCase().includes(search) ||
             item.code.toLowerCase().includes(search)
         );
     }
-    
+
     renderItems(filtered);
 }
 
@@ -135,10 +133,10 @@ window.addEventListener('click', (e) => {
 function editItem(code) {
     const item = foodItems.find(item => item.code === code);
     if (!item) return;
-    
+
     editingItemCode = code;
     document.getElementById('modalTitle').textContent = 'Edit Item';
-    
+
     document.getElementById('itemCode').value = item.code;
     document.getElementById('itemName').value = item.name;
     document.getElementById('category').value = item.category;
@@ -146,7 +144,7 @@ function editItem(code) {
     document.getElementById('discount').value = item.discount;
     document.getElementById('quantity').value = item.quantity;
     document.getElementById('expiryDate').value = item.expiryDate || '';
-    
+
     modal.style.display = 'block';
 }
 
@@ -163,8 +161,16 @@ function deleteItem(code) {
 // Form submission
 form.addEventListener('submit', (e) => {
     e.preventDefault();
-    
+
     const formData = new FormData(form);
+    let image = `https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=300&h=200&fit=crop`; // default
+    if (editingItemCode) {
+        const existing = foodItems.find(item => item.code === editingItemCode);
+        if (existing && existing.image) {
+            image = existing.image;
+        }
+    }
+
     const itemData = {
         code: formData.get('itemCode'),
         name: formData.get('itemName'),
@@ -173,9 +179,10 @@ form.addEventListener('submit', (e) => {
         discount: parseInt(formData.get('discount')) || 0,
         quantity: parseInt(formData.get('quantity')),
         expiryDate: formData.get('expiryDate') || null,
-        image: `https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=300&h=200&fit=crop` // Default image
+        image: image
     };
-    
+
+
     if (editingItemCode) {
         // Update existing item
         const index = foodItems.findIndex(item => item.code === editingItemCode);
@@ -190,7 +197,7 @@ form.addEventListener('submit', (e) => {
         }
         foodItems.push(itemData);
     }
-    
+
     saveItems();
     renderItems();
     filterItems();
@@ -203,10 +210,10 @@ document.getElementById('searchInput').addEventListener('input', filterItems);
 
 // Check for expired items on load
 function checkExpiredItems() {
-    const expiredItems = foodItems.filter(item => 
+    const expiredItems = foodItems.filter(item =>
         item.expiryDate && new Date(item.expiryDate) < new Date()
     );
-    
+
     if (expiredItems.length > 0) {
         const itemNames = expiredItems.map(item => item.name).join(', ');
         if (confirm(`The following items have expired: ${itemNames}. Would you like to remove them?`)) {
