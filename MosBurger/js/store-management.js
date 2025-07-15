@@ -186,6 +186,9 @@ form.addEventListener('submit', (e) => {
     if (editingItemCode) {
         // Update existing item
         const index = foodItems.findIndex(item => item.code === editingItemCode);
+        if (index && index.image) {
+            image = index.image;
+        }
         if (index !== -1) {
             foodItems[index] = { ...foodItems[index], ...itemData };
         }
