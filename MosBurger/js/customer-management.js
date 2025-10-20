@@ -1,4 +1,3 @@
-
 // Check authentication
 if (localStorage.getItem('isLoggedIn') !== 'true') {
     window.location.href = 'index.html';
@@ -9,6 +8,35 @@ let customers = JSON.parse(localStorage.getItem('customers')) || [];
 let orders = JSON.parse(localStorage.getItem('orders')) || [];
 
 let editingCustomerId = null;
+let currentFilter = 'all';
+
+// Add sample data if empty
+if (customers.length === 0) {
+    customers = [
+        {
+            name: 'John Doe',
+            phone: '123-456-7890',
+            email: 'john@example.com',
+            address: '123 Main St, Colombo',
+            joinDate: new Date().toISOString()
+        },
+        {
+            name: 'Jane Smith',
+            phone: '098-765-4321',
+            email: 'jane@example.com',
+            address: '456 Oak Ave, Kandy',
+            joinDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+        },
+        {
+            name: 'Mike Johnson',
+            phone: '555-123-4567',
+            email: 'mike@example.com',
+            address: '789 Pine Rd, Galle',
+            joinDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString()
+        }
+    ];
+    localStorage.setItem('customers', JSON.stringify(customers));
+}
 
 // Save customers to localStorage
 function saveCustomers() {
@@ -20,10 +48,10 @@ function getCustomerStats(customerId) {
     const customerOrders = orders.filter(order => order.customerId === customerId);
     const totalOrders = customerOrders.length;
     const totalSpent = customerOrders.reduce((sum, order) => sum + order.total, 0);
-    const lastOrderDate = customerOrders.length > 0 
+    const lastOrderDate = customerOrders.length > 0
         ? Math.max(...customerOrders.map(order => new Date(order.timestamp).getTime()))
         : null;
-    
+
     return {
         totalOrders,
         totalSpent,
@@ -34,57 +62,74 @@ function getCustomerStats(customerId) {
 // Render customers
 function renderCustomers(customersToRender = customers) {
     const grid = document.getElementById('customerGrid');
-    
+
     if (customersToRender.length === 0) {
-        grid.innerHTML = '<div class="no-customers"><p>No customers found</p></div>';
+        grid.innerHTML = '<div class="no-data"><i class="fas fa-users"></i><p>No customers found</p></div>';
         return;
     }
-    
+
     grid.innerHTML = customersToRender.map(customer => {
         const stats = getCustomerStats(customer.phone);
         const initials = customer.name.split(' ').map(n => n[0]).join('').toUpperCase();
-        
+        const isNewCustomer = new Date(customer.joinDate) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        const isActiveCustomer = stats.lastOrderDate && stats.lastOrderDate > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
         return `
-            <div class="customer-card">
-                <div class="customer-header">
-                    <div class="customer-avatar">${initials}</div>
-                    <div>
-                        <div class="customer-name">${customer.name}</div>
-                        <div class="customer-phone">${customer.phone}</div>
+            <div class="customer-card-modern ${isNewCustomer ? 'new-customer' : ''} ${isActiveCustomer ? 'active-customer' : ''}">
+                <div class="customer-card-header">
+                    <div class="customer-avatar-modern">
+                        ${initials}
+                        ${isNewCustomer ? '<span class="new-badge">NEW</span>' : ''}
+                    </div>
+                    <div class="customer-actions-modern">
+                        <button class="action-btn view-btn" onclick="viewCustomerDetails('${customer.phone}')" title="View Customer Details">
+                            <div class="btn-content">
+                                <i class="fas fa-eye"></i>
+                                <span class="btn-text">View</span>
+                            </div>
+                        </button>
+                        <button class="action-btn edit-btn" onclick="editCustomer('${customer.phone}')" title="Edit Customer Information">
+                            <div class="btn-content">
+                                <i class="fas fa-edit"></i>
+                                <span class="btn-text">Edit</span>
+                            </div>
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteCustomer('${customer.phone}')" title="Delete Customer">
+                            <div class="btn-content">
+                                <i class="fas fa-trash-alt"></i>
+                                <span class="btn-text">Delete</span>
+                            </div>
+                        </button>
                     </div>
                 </div>
-                
-                <div class="customer-details">
-                    ${customer.email ? `<p><strong>Email:</strong> ${customer.email}</p>` : ''}
-                    ${customer.address ? `<p><strong>Address:</strong> ${customer.address}</p>` : ''}
-                    <p><strong>Member Since:</strong> ${new Date(customer.joinDate).toLocaleDateString()}</p>
+
+                <div class="customer-info-modern">
+                    <h3 class="customer-name-modern">${customer.name}</h3>
+                    <div class="customer-contact-modern">
+                        <span class="contact-item"><i class="fas fa-phone"></i> ${customer.phone}</span>
+                        ${customer.email ? `<span class="contact-item"><i class="fas fa-envelope"></i> ${customer.email}</span>` : ''}
+                    </div>
+                    ${customer.address ? `<p class="customer-address-modern"><i class="fas fa-map-marker-alt"></i> ${customer.address}</p>` : ''}
                 </div>
-                
-                <div class="customer-stats">
-                    <div class="stat">
-                        <div class="stat-value">${stats.totalOrders}</div>
-                        <div class="stat-label">Orders</div>
+
+                <div class="customer-stats-modern">
+                    <div class="stat-item-modern">
+                        <div class="stat-value-modern">${stats.totalOrders}</div>
+                        <div class="stat-label-modern">Orders</div>
                     </div>
-                    <div class="stat">
-                        <div class="stat-value">LKR ${stats.totalSpent.toFixed(0)}</div>
-                        <div class="stat-label">Total Spent</div>
+                    <div class="stat-item-modern">
+                        <div class="stat-value-modern">LKR ${stats.totalSpent.toFixed(0)}</div>
+                        <div class="stat-label-modern">Total Spent</div>
                     </div>
-                    <div class="stat">
-                        <div class="stat-value">${stats.lastOrderDate ? stats.lastOrderDate.toLocaleDateString() : 'Never'}</div>
-                        <div class="stat-label">Last Order</div>
+                    <div class="stat-item-modern">
+                        <div class="stat-value-modern">${stats.lastOrderDate ? stats.lastOrderDate.toLocaleDateString() : 'Never'}</div>
+                        <div class="stat-label-modern">Last Order</div>
                     </div>
                 </div>
-                
-                <div class="customer-actions">
-                    <button class="btn btn-primary btn-small" onclick="viewCustomerDetails('${customer.phone}')">
-                        <i class="fas fa-eye"></i> View
-                    </button>
-                    <button class="btn btn-secondary btn-small" onclick="editCustomer('${customer.phone}')">
-                        <i class="fas fa-edit"></i> Edit
-                    </button>
-                    <button class="btn btn-danger btn-small" onclick="deleteCustomer('${customer.phone}')">
-                        <i class="fas fa-trash"></i> Delete
-                    </button>
+
+                <div class="customer-status-modern">
+                    <span class="join-date-modern">Member since ${new Date(customer.joinDate).toLocaleDateString()}</span>
+                    ${isActiveCustomer ? '<span class="status-badge active">Active</span>' : '<span class="status-badge inactive">Inactive</span>'}
                 </div>
             </div>
         `;
@@ -94,19 +139,55 @@ function renderCustomers(customersToRender = customers) {
 // Search customers
 function searchCustomers() {
     const query = document.getElementById('customerSearchInput').value.toLowerCase();
-    const filtered = customers.filter(customer =>
-        customer.name.toLowerCase().includes(query) ||
-        customer.phone.includes(query) ||
-        (customer.email && customer.email.toLowerCase().includes(query))
-    );
-    renderCustomers(filtered);
+
+    // First apply current filter
+    let filteredCustomers = customers;
+    if (currentFilter === 'active') {
+        const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        filteredCustomers = customers.filter(customer => {
+            const stats = getCustomerStats(customer.phone);
+            return stats.lastOrderDate && stats.lastOrderDate > oneMonthAgo;
+        });
+    } else if (currentFilter === 'new') {
+        const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        filteredCustomers = customers.filter(customer => {
+            return new Date(customer.joinDate) > oneMonthAgo;
+        });
+    }
+
+    // Then apply search
+    if (query) {
+        filteredCustomers = filteredCustomers.filter(customer =>
+            customer.name.toLowerCase().includes(query) ||
+            customer.phone.includes(query) ||
+            (customer.email && customer.email.toLowerCase().includes(query))
+        );
+    }
+
+    renderCustomers(filteredCustomers);
 }
 
 // Sort customers
 function sortCustomers() {
     const sortBy = document.getElementById('sortBy').value;
-    let sorted = [...customers];
-    
+
+    // First apply current filter
+    let customersToSort = customers;
+    if (currentFilter === 'active') {
+        const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        customersToSort = customers.filter(customer => {
+            const stats = getCustomerStats(customer.phone);
+            return stats.lastOrderDate && stats.lastOrderDate > oneMonthAgo;
+        });
+    } else if (currentFilter === 'new') {
+        const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        customersToSort = customers.filter(customer => {
+            return new Date(customer.joinDate) > oneMonthAgo;
+        });
+    }
+
+    let sorted = [...customersToSort];
+
     switch (sortBy) {
         case 'name':
             sorted.sort((a, b) => a.name.localeCompare(b.name));
@@ -121,14 +202,326 @@ function sortCustomers() {
                 return statsB.totalOrders - statsA.totalOrders;
             });
             break;
+        case 'spent':
+            sorted.sort((a, b) => {
+                const statsA = getCustomerStats(a.phone);
+                const statsB = getCustomerStats(b.phone);
+                return statsB.totalSpent - statsA.totalSpent;
+            });
+            break;
     }
-    
+
+    // Apply current search if any
+    const query = document.getElementById('customerSearchInput').value.toLowerCase();
+    if (query) {
+        sorted = sorted.filter(customer =>
+            customer.name.toLowerCase().includes(query) ||
+            customer.phone.includes(query) ||
+            (customer.email && customer.email.toLowerCase().includes(query))
+        );
+    }
+
     renderCustomers(sorted);
+}
+
+// Edit customer
+function editCustomer(phone) {
+    const customer = customers.find(c => c.phone === phone);
+    if (!customer) return;
+
+    editingCustomerId = phone;
+    document.getElementById('customerModalTitle').textContent = 'Edit Customer';
+
+    document.getElementById('customerName').value = customer.name;
+    document.getElementById('customerPhone').value = customer.phone;
+    document.getElementById('customerEmail').value = customer.email || '';
+    document.getElementById('customerAddress').value = customer.address || '';
+
+    customerModal.style.display = 'block';
+}
+
+// Delete customer
+function deleteCustomer(phone) {
+    const customer = customers.find(c => c.phone === phone);
+    if (!customer) return;
+
+    const stats = getCustomerStats(phone);
+
+    // Populate delete modal with customer info
+    const deleteInfo = document.getElementById('deleteCustomerInfo');
+    deleteInfo.innerHTML = `
+        <div class="delete-customer-details">
+            <div class="delete-customer-name">${customer.name}</div>
+            <div class="delete-customer-contact">
+                <span><i class="fas fa-phone"></i> ${customer.phone}</span>
+                ${customer.email ? `<span><i class="fas fa-envelope"></i> ${customer.email}</span>` : ''}
+            </div>
+            <div class="delete-customer-stats">
+                <div class="delete-stat-item">
+                    <span class="delete-stat-value">${stats.totalOrders}</span>
+                    <span class="delete-stat-label">Total Orders</span>
+                </div>
+                <div class="delete-stat-item">
+                    <span class="delete-stat-value">LKR ${stats.totalSpent.toFixed(0)}</span>
+                    <span class="delete-stat-label">Total Spent</span>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Store customer phone for deletion
+    document.getElementById('confirmDeleteBtn').dataset.customerPhone = phone;
+
+    // Show modal
+    deleteCustomerModal.style.display = 'block';
+}
+
+// View customer details
+function viewCustomerDetails(phone) {
+    const customer = customers.find(c => c.phone === phone);
+    if (!customer) return;
+
+    const stats = getCustomerStats(phone);
+    const customerOrders = orders.filter(order => order.customerId === phone);
+
+    const content = document.getElementById('customerDetailsContent');
+    content.innerHTML = `
+        <div class="customer-details-modern">
+            <!-- Customer Header -->
+            <div class="customer-details-header">
+                <div class="customer-avatar-large">
+                    ${customer.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                </div>
+                <div class="customer-details-info">
+                    <h2>${customer.name}</h2>
+                    <div class="customer-details-contact">
+                        <span class="contact-detail"><i class="fas fa-phone"></i> ${customer.phone}</span>
+                        ${customer.email ? `<span class="contact-detail"><i class="fas fa-envelope"></i> ${customer.email}</span>` : ''}
+                    </div>
+                    <div class="customer-details-meta">
+                        <span class="meta-item"><i class="fas fa-calendar-plus"></i> Joined ${new Date(customer.joinDate).toLocaleDateString()}</span>
+                        <span class="meta-item"><i class="fas fa-clock"></i> Last: ${stats.lastOrderDate ? stats.lastOrderDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Never'}</span>
+                    </div>
+                </div>
+                <div class="customer-details-actions">
+                    <button class="btn btn-primary" onclick="editCustomer('${customer.phone}')">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="btn btn-danger" onclick="deleteCustomer('${customer.phone}')">
+                        <i class="fas fa-trash-alt"></i> Delete
+                    </button>
+                </div>
+            </div>
+
+            <!-- Customer Stats -->
+            <div class="customer-details-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">${stats.totalOrders}</div>
+                        <div class="stat-label">Total Orders</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">LKR ${stats.totalSpent.toFixed(0)}</div>
+                        <div class="stat-label">Total Spent</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">${stats.lastOrderDate ? stats.lastOrderDate.toLocaleDateString() : 'Never'}</div>
+                        <div class="stat-label">Last Order</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Information -->
+            <div class="customer-details-info-section">
+                <h3><i class="fas fa-info-circle"></i> Customer Information</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Full Name</label>
+                        <span>${customer.name}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Phone Number</label>
+                        <span>${customer.phone}</span>
+                    </div>
+                    ${customer.email ? `
+                        <div class="info-item">
+                            <label>Email Address</label>
+                            <span>${customer.email}</span>
+                        </div>
+                    ` : ''}
+                    ${customer.address ? `
+                        <div class="info-item full-width">
+                            <label>Address</label>
+                            <span>${customer.address}</span>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+
+            <!-- Recent Orders -->
+            ${customerOrders.length > 0 ? `
+                <div class="customer-orders-section">
+                    <h3><i class="fas fa-history"></i> Recent Orders</h3>
+                    <div class="orders-list">
+                        ${customerOrders.slice(0, 5).map(order => `
+                            <div class="order-item">
+                                <div class="order-info">
+                                    <span class="order-id">${order.id}</span>
+                                    <span class="order-date">${new Date(order.timestamp).toLocaleDateString()}</span>
+                                </div>
+                                <div class="order-total">LKR ${order.total.toFixed(2)}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+        </div>
+    `;
+
+    customerDetailsModal.style.display = 'block';
+}
+
+// Update customer statistics
+function updateCustomerStats() {
+    const totalCustomersEl = document.getElementById('totalCustomers');
+    const activeCustomersEl = document.getElementById('activeCustomers');
+    const newCustomersEl = document.getElementById('newCustomers');
+
+    if (totalCustomersEl) totalCustomersEl.textContent = customers.length;
+
+    const now = new Date();
+    const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    let activeCount = 0;
+    let newCount = 0;
+
+    customers.forEach(customer => {
+        const stats = getCustomerStats(customer.phone);
+        const joinDate = new Date(customer.joinDate);
+
+        if (stats.lastOrderDate && stats.lastOrderDate > oneMonthAgo) {
+            activeCount++;
+        }
+
+        if (joinDate > oneMonthAgo) {
+            newCount++;
+        }
+    });
+
+    if (activeCustomersEl) activeCustomersEl.textContent = activeCount;
+    if (newCustomersEl) newCustomersEl.textContent = newCount;
+}
+
+// Export customers to CSV
+function exportCustomers() {
+    if (customers.length === 0) {
+        alert('No customers to export.');
+        return;
+    }
+
+    // Prepare CSV headers
+    const headers = [
+        'Name',
+        'Phone',
+        'Email',
+        'Address',
+        'Join Date',
+        'Total Orders',
+        'Total Spent (LKR)',
+        'Last Order Date',
+        'Status'
+    ];
+
+    // Prepare CSV data
+    const csvData = customers.map(customer => {
+        const stats = getCustomerStats(customer.phone);
+        const now = new Date();
+        const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        const isActive = stats.lastOrderDate && stats.lastOrderDate > oneMonthAgo;
+
+        return [
+            `"${customer.name.replace(/"/g, '""')}"`,
+            `"${customer.phone}"`,
+            customer.email ? `"${customer.email.replace(/"/g, '""')}"` : '',
+            customer.address ? `"${customer.address.replace(/"/g, '""')}"` : '',
+            `"${new Date(customer.joinDate).toLocaleDateString()}"`,
+            stats.totalOrders,
+            stats.totalSpent.toFixed(2),
+            stats.lastOrderDate ? `"${stats.lastOrderDate.toLocaleDateString()}"` : 'Never',
+            isActive ? 'Active' : 'Inactive'
+        ];
+    });
+
+    // Combine headers and data
+    const csvContent = [headers.join(','), ...csvData.map(row => row.join(','))].join('\n');
+
+    // Create and download the file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `customers_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Filter customers
+function filterCustomers(filterType) {
+    currentFilter = filterType;
+
+    // Update filter button states
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`[data-filter="${filterType}"]`).classList.add('active');
+
+    let filteredCustomers = customers;
+
+    if (filterType === 'active') {
+        const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        filteredCustomers = customers.filter(customer => {
+            const stats = getCustomerStats(customer.phone);
+            return stats.lastOrderDate && stats.lastOrderDate > oneMonthAgo;
+        });
+    } else if (filterType === 'new') {
+        const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        filteredCustomers = customers.filter(customer => {
+            return new Date(customer.joinDate) > oneMonthAgo;
+        });
+    }
+
+    renderCustomers(filteredCustomers);
+}
+
+// Setup filter buttons
+function setupFilterButtons() {
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const filterType = e.target.closest('.filter-btn').dataset.filter;
+            filterCustomers(filterType);
+        });
+    });
 }
 
 // Modal management
 const customerModal = document.getElementById('customerModal');
 const customerDetailsModal = document.getElementById('customerDetailsModal');
+const deleteCustomerModal = document.getElementById('deleteCustomerModal');
 const addCustomerBtn = document.getElementById('addCustomerBtn');
 const customerForm = document.getElementById('customerForm');
 
@@ -143,18 +536,16 @@ addCustomerBtn.addEventListener('click', () => {
 // Form submission
 customerForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    
+
     const formData = new FormData(customerForm);
     const customerData = {
         name: formData.get('customerName'),
         phone: formData.get('customerPhone'),
-        email: formData.get('customerEmail') || '',
-        address: formData.get('customerAddress') || '',
-        joinDate: editingCustomerId ? 
-            customers.find(c => c.phone === editingCustomerId).joinDate : 
-            new Date().toISOString()
+        email: formData.get('customerEmail'),
+        address: formData.get('customerAddress'),
+        joinDate: editingCustomerId ? customers.find(c => c.phone === editingCustomerId).joinDate : new Date().toISOString()
     };
-    
+
     if (editingCustomerId) {
         // Update existing customer
         const index = customers.findIndex(c => c.phone === editingCustomerId);
@@ -162,135 +553,21 @@ customerForm.addEventListener('submit', (e) => {
             customers[index] = { ...customers[index], ...customerData };
         }
     } else {
-        // Add new customer
-        if (customers.find(c => c.phone === customerData.phone)) {
-            alert('Customer with this phone number already exists!');
+        // Check if customer with this phone already exists
+        const existingCustomer = customers.find(c => c.phone === customerData.phone);
+        if (existingCustomer) {
+            alert('A customer with this phone number already exists!');
             return;
         }
+        // Add new customer
         customers.push(customerData);
     }
-    
+
     saveCustomers();
     renderCustomers();
+    updateCustomerStats();
     customerModal.style.display = 'none';
-    
-    alert('Customer saved successfully!');
 });
-
-// Edit customer
-function editCustomer(phone) {
-    const customer = customers.find(c => c.phone === phone);
-    if (!customer) return;
-    
-    editingCustomerId = phone;
-    document.getElementById('customerModalTitle').textContent = 'Edit Customer';
-    
-    document.getElementById('customerName').value = customer.name;
-    document.getElementById('customerPhone').value = customer.phone;
-    document.getElementById('customerEmail').value = customer.email || '';
-    document.getElementById('customerAddress').value = customer.address || '';
-    
-    customerModal.style.display = 'block';
-}
-
-// Delete customer
-function deleteCustomer(phone) {
-    const customer = customers.find(c => c.phone === phone);
-    if (!customer) return;
-    
-    const stats = getCustomerStats(phone);
-    
-    if (stats.totalOrders > 0) {
-        if (!confirm(`This customer has ${stats.totalOrders} orders. Are you sure you want to delete this customer? This action cannot be undone.`)) {
-            return;
-        }
-    } else {
-        if (!confirm('Are you sure you want to delete this customer?')) {
-            return;
-        }
-    }
-    
-    customers = customers.filter(c => c.phone !== phone);
-    saveCustomers();
-    renderCustomers();
-}
-
-// View customer details
-function viewCustomerDetails(phone) {
-    const customer = customers.find(c => c.phone === phone);
-    if (!customer) return;
-    
-    const stats = getCustomerStats(phone);
-    const customerOrders = orders.filter(order => order.customerId === phone);
-    
-    const content = document.getElementById('customerDetailsContent');
-    content.innerHTML = `
-        <div class="customer-full-details">
-            <div class="customer-info">
-                <h3>${customer.name}</h3>
-                <p><strong>Phone:</strong> ${customer.phone}</p>
-                ${customer.email ? `<p><strong>Email:</strong> ${customer.email}</p>` : ''}
-                ${customer.address ? `<p><strong>Address:</strong> ${customer.address}</p>` : ''}
-                <p><strong>Member Since:</strong> ${new Date(customer.joinDate).toLocaleDateString()}</p>
-            </div>
-            
-            <div class="customer-statistics">
-                <h4>Customer Statistics</h4>
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <span class="stat-label">Total Orders:</span>
-                        <span class="stat-value">${stats.totalOrders}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Total Spent:</span>
-                        <span class="stat-value">LKR ${stats.totalSpent.toFixed(2)}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Average Order:</span>
-                        <span class="stat-value">LKR ${stats.totalOrders > 0 ? (stats.totalSpent / stats.totalOrders).toFixed(2) : '0.00'}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Last Order:</span>
-                        <span class="stat-value">${stats.lastOrderDate ? stats.lastOrderDate.toLocaleDateString() : 'Never'}</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="customer-orders">
-                <h4>Recent Orders</h4>
-                ${customerOrders.length > 0 ? `
-                    <div class="orders-table">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Order ID</th>
-                                    <th>Date</th>
-                                    <th>Items</th>
-                                    <th>Total</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${customerOrders.slice(0, 5).map(order => `
-                                    <tr>
-                                        <td>#${order.id}</td>
-                                        <td>${new Date(order.timestamp).toLocaleDateString()}</td>
-                                        <td>${order.items.length} items</td>
-                                        <td>LKR ${order.total.toFixed(2)}</td>
-                                        <td><span class="status ${order.status}">${order.status}</span></td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                        ${customerOrders.length > 5 ? `<p><em>Showing 5 of ${customerOrders.length} orders</em></p>` : ''}
-                    </div>
-                ` : '<p>No orders found for this customer.</p>'}
-            </div>
-        </div>
-    `;
-    
-    customerDetailsModal.style.display = 'block';
-}
 
 // Modal close functionality
 document.querySelectorAll('.close').forEach(closeBtn => {
@@ -303,6 +580,21 @@ document.getElementById('cancelCustomerBtn').addEventListener('click', () => {
     customerModal.style.display = 'none';
 });
 
+document.getElementById('cancelDeleteBtn').addEventListener('click', () => {
+    deleteCustomerModal.style.display = 'none';
+});
+
+document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
+    const phone = document.getElementById('confirmDeleteBtn').dataset.customerPhone;
+    if (phone) {
+        customers = customers.filter(c => c.phone !== phone);
+        saveCustomers();
+        renderCustomers();
+        updateCustomerStats();
+        deleteCustomerModal.style.display = 'none';
+    }
+});
+
 window.addEventListener('click', (e) => {
     if (e.target === customerModal) {
         customerModal.style.display = 'none';
@@ -310,41 +602,19 @@ window.addEventListener('click', (e) => {
     if (e.target === customerDetailsModal) {
         customerDetailsModal.style.display = 'none';
     }
+    if (e.target === deleteCustomerModal) {
+        deleteCustomerModal.style.display = 'none';
+    }
 });
 
 // Event listeners
 document.getElementById('customerSearchInput').addEventListener('input', searchCustomers);
 document.getElementById('sortBy').addEventListener('change', sortCustomers);
-
-// Add some sample customers if none exist
-if (customers.length === 0) {
-    const sampleCustomers = [
-        {
-            name: 'John Doe',
-            phone: '0771234567',
-            email: 'john.doe@email.com',
-            address: '123 Main Street, Colombo',
-            joinDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
-        },
-        {
-            name: 'Jane Smith',
-            phone: '0779876543',
-            email: 'jane.smith@email.com',
-            address: '456 Queen Street, Kandy',
-            joinDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString()
-        },
-        {
-            name: 'Mike Johnson',
-            phone: '0765432109',
-            email: 'mike.johnson@email.com',
-            address: '789 King Street, Galle',
-            joinDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
-        }
-    ];
-    
-    customers = sampleCustomers;
-    saveCustomers();
-}
+document.getElementById('exportCustomersBtn').addEventListener('click', exportCustomers);
 
 // Initialize
-renderCustomers();
+document.addEventListener('DOMContentLoaded', function() {
+    updateCustomerStats();
+    setupFilterButtons();
+    renderCustomers();
+});
