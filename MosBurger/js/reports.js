@@ -9,6 +9,541 @@ let orders = JSON.parse(localStorage.getItem('orders')) || [];
 let customers = JSON.parse(localStorage.getItem('customers')) || [];
 let foodItems = JSON.parse(localStorage.getItem('foodItems')) || [];
 
+// Chart instances
+let salesChart = null;
+let annualChart = null;
+
+// Generate sample data if empty
+function generateSampleData() {
+    if (orders.length === 0) {
+        const sampleCustomers = [
+            { name: 'John Doe', phone: '123-456-7890', email: 'john@example.com' },
+            { name: 'Jane Smith', phone: '098-765-4321', email: 'jane@example.com' },
+            { name: 'Mike Johnson', phone: '555-123-4567', email: 'mike@example.com' },
+            { name: 'Sarah Wilson', phone: '777-888-9999', email: 'sarah@example.com' },
+            { name: 'David Brown', phone: '111-222-3333', email: 'david@example.com' }
+        ];
+
+        const sampleItems = [
+            { code: 'BURGER001', name: 'Classic Burger', price: 850 },
+            { code: 'BURGER002', name: 'Cheese Burger', price: 950 },
+            { code: 'BURGER003', name: 'Chicken Burger', price: 780 },
+            { code: 'FRIES001', name: 'French Fries', price: 320 },
+            { code: 'DRINK001', name: 'Coca Cola', price: 250 },
+            { code: 'DRINK002', name: 'Sprite', price: 250 }
+        ];
+
+        // Generate orders for the last 12 months
+        const now = new Date();
+        for (let monthsBack = 0; monthsBack < 12; monthsBack++) {
+            const monthDate = new Date(now.getFullYear(), now.getMonth() - monthsBack, 1);
+            const daysInMonth = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0).getDate();
+
+            // Generate 50-100 orders per month
+            const ordersThisMonth = Math.floor(Math.random() * 50) + 50;
+
+            for (let i = 0; i < ordersThisMonth; i++) {
+                const orderDate = new Date(monthDate);
+                orderDate.setDate(Math.floor(Math.random() * daysInMonth) + 1);
+                orderDate.setHours(Math.floor(Math.random() * 12) + 8); // 8 AM to 8 PM
+
+                const customer = sampleCustomers[Math.floor(Math.random() * sampleCustomers.length)];
+                const numItems = Math.floor(Math.random() * 4) + 1; // 1-4 items per order
+
+                const orderItems = [];
+                let total = 0;
+
+                for (let j = 0; j < numItems; j++) {
+                    const item = sampleItems[Math.floor(Math.random() * sampleItems.length)];
+                    const quantity = Math.floor(Math.random() * 3) + 1; // 1-3 quantity
+                    const cartPrice = item.price * quantity;
+
+                    orderItems.push({
+                        code: item.code,
+                        name: item.name,
+                        price: item.price,
+                        quantity: quantity,
+                        cartPrice: cartPrice
+                    });
+
+                    total += cartPrice;
+                }
+
+                orders.push({
+                    id: `ORD${String(orders.length + 1).padStart(4, '0')}`,
+                    customerId: customer.phone,
+                    customerName: customer.name,
+                    items: orderItems,
+                    total: total,
+                    timestamp: orderDate.toISOString(),
+                    status: 'completed'
+                });
+            }
+        }
+
+        localStorage.setItem('orders', JSON.stringify(orders));
+        localStorage.setItem('customers', JSON.stringify(sampleCustomers));
+        localStorage.setItem('foodItems', JSON.stringify(sampleItems));
+    }
+}
+
+// Initialize charts
+function initializeCharts() {
+    // Wait for DOM to be fully loaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                createSalesChart();
+                createAnnualChart();
+            }, 100);
+        });
+    } else {
+        setTimeout(() => {
+            createSalesChart();
+            createAnnualChart();
+        }, 100);
+    }
+}
+
+// Create sales performance chart
+function createSalesChart() {
+    try {
+        const chartElement = document.getElementById('salesChartCanvas');
+        if (!chartElement) {
+            console.error('Sales chart canvas element not found');
+            return;
+        }
+
+        const ctx = chartElement.getContext('2d');
+        if (!ctx) {
+            console.error('Could not get 2D context for sales chart');
+            return;
+        }
+
+        const month = parseInt(document.getElementById('salesMonth').value);
+        const year = parseInt(document.getElementById('salesYear').value);
+
+        const monthOrders = orders.filter(order => {
+            const orderDate = new Date(order.timestamp);
+            return orderDate.getMonth() === month && orderDate.getFullYear() === year;
+        });
+
+        // Group by day
+        const dailyData = {};
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            dailyData[day] = { orders: 0, revenue: 0 };
+        }
+
+        monthOrders.forEach(order => {
+            const day = new Date(order.timestamp).getDate();
+            dailyData[day].orders += 1;
+            dailyData[day].revenue += order.total;
+        });
+
+        const labels = Object.keys(dailyData).map(day => `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`);
+        const revenueData = Object.values(dailyData).map(day => day.revenue);
+        const ordersData = Object.values(dailyData).map(day => day.orders);
+
+        if (salesChart) {
+            salesChart.destroy();
+        }
+
+        salesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Daily Revenue (LKR)',
+                    data: revenueData,
+                    borderColor: 'rgba(255, 107, 53, 1)',
+                    backgroundColor: 'rgba(255, 107, 53, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: 'rgba(255, 107, 53, 1)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    pointHoverBackgroundColor: 'rgba(255, 107, 53, 1)',
+                    pointHoverBorderColor: '#fff',
+                    pointHoverBorderWidth: 3,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Daily Orders',
+                    data: ordersData,
+                    borderColor: 'rgba(247, 147, 30, 1)',
+                    backgroundColor: 'rgba(247, 147, 30, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: 'rgba(247, 147, 30, 1)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    pointHoverBackgroundColor: 'rgba(247, 147, 30, 1)',
+                    pointHoverBorderColor: '#fff',
+                    pointHoverBorderWidth: 3,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: `Sales Performance - ${new Date(year, month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`,
+                        font: {
+                            size: 16,
+                            weight: 'bold',
+                            family: 'Poppins'
+                        },
+                        padding: 20,
+                        color: '#2c3e50'
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: {
+                                size: 12,
+                                family: 'Poppins',
+                                weight: '500'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        borderColor: 'rgba(255, 107, 53, 0.5)',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        displayColors: true,
+                        callbacks: {
+                            title: function(context) {
+                                return new Date(context[0].label).toLocaleDateString('en-US', {
+                                    weekday: 'long',
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                });
+                            },
+                            label: function(context) {
+                                if (context.datasetIndex === 0) {
+                                    return `Revenue: LKR ${context.parsed.y.toFixed(2)}`;
+                                } else {
+                                    return `Orders: ${context.parsed.y}`;
+                                }
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Date',
+                            font: {
+                                size: 14,
+                                weight: 'bold',
+                                family: 'Poppins'
+                            },
+                            color: '#6c757d'
+                        },
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            maxTicksLimit: 10,
+                            font: {
+                                size: 11,
+                                family: 'Poppins'
+                            },
+                            color: '#6c757d'
+                        }
+                    },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Revenue (LKR)',
+                            font: {
+                                size: 14,
+                                weight: 'bold',
+                                family: 'Poppins'
+                            },
+                            color: '#ff6b35'
+                        },
+                        grid: {
+                            color: 'rgba(255, 107, 53, 0.1)',
+                            borderDash: [5, 5]
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return 'LKR ' + value.toFixed(0);
+                            },
+                            font: {
+                                size: 11,
+                                family: 'Poppins'
+                            },
+                            color: '#ff6b35'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Orders',
+                            font: {
+                                size: 14,
+                                weight: 'bold',
+                                family: 'Poppins'
+                            },
+                            color: '#f7931e'
+                        },
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                        ticks: {
+                            font: {
+                                size: 11,
+                                family: 'Poppins'
+                            },
+                            color: '#f7931e'
+                        }
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeInOutQuart'
+                }
+            }
+        });
+
+        console.log('Sales chart created successfully');
+    } catch (error) {
+        console.error('Error creating sales chart:', error);
+    }
+}
+
+// Create annual performance chart
+function createAnnualChart() {
+    const ctx = document.getElementById('annualChartCanvas').getContext('2d');
+    const year = parseInt(document.getElementById('annualYear').value);
+
+    const yearOrders = orders.filter(order => {
+        const orderDate = new Date(order.timestamp);
+        return orderDate.getFullYear() === year;
+    });
+
+    // Group by month
+    const monthlyData = {};
+    for (let month = 0; month < 12; month++) {
+        monthlyData[month] = { orders: 0, revenue: 0 };
+    }
+
+    yearOrders.forEach(order => {
+        const month = new Date(order.timestamp).getMonth();
+        monthlyData[month].orders += 1;
+        monthlyData[month].revenue += order.total;
+    });
+
+    const monthNames = [
+        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+
+    const revenueData = Object.values(monthlyData).map(month => month.revenue);
+    const ordersData = Object.values(monthlyData).map(month => month.orders);
+
+    if (annualChart) {
+        annualChart.destroy();
+    }
+
+    annualChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: monthNames,
+            datasets: [{
+                label: 'Monthly Revenue (LKR)',
+                data: revenueData,
+                backgroundColor: 'rgba(255, 107, 53, 0.8)',
+                borderColor: 'rgba(255, 107, 53, 1)',
+                borderWidth: 2,
+                borderRadius: 8,
+                borderSkipped: false,
+                yAxisID: 'y'
+            }, {
+                label: 'Monthly Orders',
+                data: ordersData,
+                backgroundColor: 'rgba(247, 147, 30, 0.8)',
+                borderColor: 'rgba(247, 147, 30, 1)',
+                borderWidth: 2,
+                borderRadius: 8,
+                borderSkipped: false,
+                yAxisID: 'y1'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: `Annual Performance Overview - ${year}`,
+                    font: {
+                        size: 16,
+                        weight: 'bold',
+                        family: 'Poppins'
+                    },
+                    padding: 20,
+                    color: '#2c3e50'
+                },
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20,
+                        font: {
+                            size: 12,
+                            family: 'Poppins',
+                            weight: '500'
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: 'rgba(255, 107, 53, 0.5)',
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                    displayColors: true,
+                    callbacks: {
+                        title: function(context) {
+                            return `${context[0].label} ${year}`;
+                        },
+                        label: function(context) {
+                            if (context.datasetIndex === 0) {
+                                return `Revenue: LKR ${context.parsed.y.toFixed(2)}`;
+                            } else {
+                                return `Orders: ${context.parsed.y}`;
+                            }
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Month',
+                        font: {
+                            size: 14,
+                            weight: 'bold',
+                            family: 'Poppins'
+                        },
+                        color: '#6c757d'
+                    },
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 12,
+                            family: 'Poppins'
+                        },
+                        color: '#6c757d'
+                    }
+                },
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Revenue (LKR)',
+                        font: {
+                            size: 14,
+                            weight: 'bold',
+                            family: 'Poppins'
+                        },
+                        color: '#ff6b35'
+                    },
+                    grid: {
+                        color: 'rgba(255, 107, 53, 0.1)',
+                        borderDash: [5, 5]
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return 'LKR ' + value.toFixed(0);
+                        },
+                        font: {
+                            size: 11,
+                            family: 'Poppins'
+                        },
+                        color: '#ff6b35'
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Orders',
+                        font: {
+                            size: 14,
+                            weight: 'bold',
+                            family: 'Poppins'
+                        },
+                        color: '#f7931e'
+                    },
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                    ticks: {
+                        font: {
+                            size: 11,
+                            family: 'Poppins'
+                        },
+                        color: '#f7931e'
+                    }
+                }
+            },
+            animation: {
+                duration: 2000,
+                easing: 'easeInOutQuart',
+                delay: function(context) {
+                    return context.dataIndex * 100;
+                }
+            }
+        }
+    });
+}
+
 // Initialize year dropdowns
 function initializeYearDropdowns() {
     const currentYear = new Date().getFullYear();
@@ -111,6 +646,11 @@ function updateSummaryStats() {
             <div class="value">${stats.totalCustomers}</div>
         </div>
     `;
+
+    // Update header statistics
+    document.getElementById('headerTotalRevenue').textContent = 'LKR ' + stats.yearlyRevenue.toFixed(2);
+    document.getElementById('headerTotalOrders').textContent = stats.yearlyOrders;
+    document.getElementById('headerAvgOrderValue').textContent = 'LKR ' + stats.avgOrderValue.toFixed(2);
 }
 
 // Generate monthly sales report
@@ -145,12 +685,30 @@ function generateMonthlySalesReport() {
                 <td>LKR ${dailySales[day].revenue.toFixed(2)}</td>
             </tr>
         `).join('');
+    
+    // Update chart
+    createSalesChart();
 }
 
 // Generate top customers report
 function generateTopCustomersReport() {
     const period = document.getElementById('customerPeriod').value;
     let filteredOrders = orders;
+
+    if (period === 'month') {
+        const now = new Date();
+        filteredOrders = orders.filter(order => {
+            const orderDate = new Date(order.timestamp);
+            return orderDate.getMonth() === now.getMonth() &&
+                   orderDate.getFullYear() === now.getFullYear();
+        });
+    } else if (period === 'year') {
+        const currentYear = new Date().getFullYear();
+        filteredOrders = orders.filter(order => {
+            const orderDate = new Date(order.timestamp);
+            return orderDate.getFullYear() === currentYear;
+        });
+    }
     
     if (period === 'month') {
         const now = new Date();
@@ -185,11 +743,12 @@ function generateTopCustomersReport() {
     const sortedCustomers = Object.values(customerStats)
         .sort((a, b) => b.totalSpent - a.totalSpent)
         .slice(0, 10);
-    
+
     // Update table
     const tbody = document.getElementById('topCustomersBody');
-    tbody.innerHTML = sortedCustomers.map(customer => `
+    tbody.innerHTML = sortedCustomers.map((customer, index) => `
         <tr>
+            <td><span class="rank-badge rank-${index + 1}">#${index + 1}</span></td>
             <td>${customer.name}</td>
             <td>${customer.orders}</td>
             <td>LKR ${customer.totalSpent.toFixed(2)}</td>
@@ -290,10 +849,13 @@ function generateAnnualReport() {
                 <td>${monthNames[monthNum]}</td>
                 <td>${monthlyData[month].orders}</td>
                 <td>LKR ${monthlyData[month].revenue.toFixed(2)}</td>
-                <td>${growth !== 'N/A' ? growth + '%' : 'N/A'}</td>
+                <td class="${growth !== 'N/A' ? (parseFloat(growth) >= 0 ? 'positive-growth' : 'negative-growth') : ''}">${growth !== 'N/A' ? growth + '%' : 'N/A'}</td>
             </tr>
         `;
     }).join('');
+    
+    // Update chart
+    createAnnualChart();
 }
 
 // Generate PDF report (simplified)
@@ -639,8 +1201,18 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
+// Event listeners
+document.getElementById('salesMonth').addEventListener('change', generateMonthlySalesReport);
+document.getElementById('salesYear').addEventListener('change', generateMonthlySalesReport);
+document.getElementById('customerPeriod').addEventListener('change', generateTopCustomersReport);
+document.getElementById('itemsPeriod').addEventListener('change', generatePopularItemsReport);
+document.getElementById('annualYear').addEventListener('change', generateAnnualReport);
+document.getElementById('generateReportBtn').addEventListener('click', generatePDFReport);
+
 // Initialize
+generateSampleData();
 initializeYearDropdowns();
+initializeCharts();
 updateSummaryStats();
 generateMonthlySalesReport();
 generateTopCustomersReport();
