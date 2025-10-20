@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,68 +26,154 @@
         </nav>
         
         <main class="main-content">
-            <header class="content-header">
-                <h1>Order Management</h1>
-                <button class="btn btn-primary" id="newOrderBtn">
-                    <i class="fas fa-plus"></i> New Order
-                </button>
-            </header>
-            
-            <div class="order-container">
-                <div class="order-panel">
-                    <h2>Create Order</h2>
-                    <div class="customer-section">
-                        <div class="search-container">
-                            <i class="fas fa-search search-icon"></i>
-                            <input type="text" id="customerSearch" placeholder="Search customer by phone or name...">
+            <header class="content-header-modern order-header">
+                <div class="header-content-modern">
+                    <div class="header-title-section">
+                        <div class="header-icon-modern">
+                            <i class="fas fa-shopping-cart"></i>
                         </div>
-                        <button class="btn btn-secondary" id="addCustomerBtn">Add New Customer</button>
+                        <div class="header-text-modern">
+                            <h1>Order Management</h1>
+                            <p class="header-subtitle-modern">Create and manage customer orders efficiently</p>
+                        </div>
                     </div>
-                    
-                    <div class="item-search-section">
-                        <div class="search-container">
-                            <i class="fas fa-search search-icon"></i>
-                            <input type="text" id="itemSearch" placeholder="Search items by name, code, or category...">
+                    <div class="header-stats-modern">
+                        <div class="header-stat-item">
+                            <span class="header-stat-value" id="totalOrders">0</span>
+                            <span class="header-stat-label">Today's Orders</span>
                         </div>
-                        <div id="itemSuggestions" class="suggestions-dropdown"></div>
+                        <div class="header-stat-item">
+                            <span class="header-stat-value" id="pendingOrders">0</span>
+                            <span class="header-stat-label">Pending</span>
+                        </div>
                     </div>
-                    
-                    <div class="cart-section">
-                        <h3>Cart Items</h3>
-                        <div id="cartItems" class="cart-items"></div>
-                        
-                        <div class="order-summary">
-                            <div class="discount-section">
-                                <label for="orderDiscount">Order Discount (%):</label>
-                                <input type="number" id="orderDiscount" min="0" max="100" value="0">
-                            </div>
-                            <div class="summary-line">
-                                <span>Subtotal:</span>
-                                <span id="subtotal">LKR 0.00</span>
-                            </div>
-                            <div class="summary-line">
-                                <span>Discount:</span>
-                                <span id="discountAmount">LKR 0.00</span>
-                            </div>
-                            <div class="summary-line total">
-                                <span>Total:</span>
-                                <span id="totalAmount">LKR 0.00</span>
-                            </div>
-                        </div>
-                        
-                        <button class="btn btn-primary" id="placeOrderBtn" disabled>Place Order</button>
+                    <div class="header-actions-modern">
+                        <button class="btn btn-primary-modern" id="newOrderBtn">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>New Order</span>
+                        </button>
+                        <button class="btn btn-outline-modern" id="exportOrdersBtn">
+                            <i class="fas fa-download"></i>
+                            <span>Export</span>
+                        </button>
                     </div>
                 </div>
-                
-                <div class="orders-panel">
-                    <h2>Recent Orders</h2>
-                    <div class="search-orders">
+            </header>
+
+            <div class="order-workspace">
+                <!-- Customer Selection Section -->
+                <div class="customer-selection-section">
+                    <h3><i class="fas fa-user-friends"></i> Select Customer</h3>
+                    <div class="customer-actions">
                         <div class="search-container">
                             <i class="fas fa-search search-icon"></i>
-                            <input type="text" id="orderSearch" placeholder="Search by Order ID or Customer...">
+                            <input type="text" id="customerSearch" placeholder="Search customers..." class="search-input">
+                            <div id="customerSuggestions" class="suggestions-list"></div>
+                        </div>
+                        <button class="btn btn-secondary" id="addCustomerBtn">
+                            <i class="fas fa-user-plus"></i> Add Customer
+                        </button>
+                    </div>
+                    <div id="customerGrid" class="customer-grid-simple"></div>
+                    <div id="selectedCustomerDisplay" class="selected-customer-display"></div>
+                </div>
+
+                <!-- Main Content Layout -->
+                <div class="main-content-layout">
+                    <!-- Items Section -->
+                    <div class="items-section">
+                        <div class="items-header">
+                            <div class="items-header-top">
+                                <h3><i class="fas fa-utensils"></i> Menu Items</h3>
+                                <input type="text" id="itemSearch" placeholder="Search menu items..." class="item-search-input">
+                            </div>
+                            <div class="filter-buttons">
+                                <button class="filter-btn active" data-category="all">
+                                    <i class="fas fa-th"></i> All
+                                </button>
+                                <button class="filter-btn" data-category="Burgers">
+                                    <i class="fas fa-hamburger"></i> Burgers
+                                </button>
+                                <button class="filter-btn" data-category="Submarines">
+                                    <i class="fas fa-bread-slice"></i> Submarines
+                                </button>
+                                <button class="filter-btn" data-category="Fries">
+                                    <i class="fas fa-cookie-bite"></i> Fries
+                                </button>
+                                <button class="filter-btn" data-category="Beverages">
+                                    <i class="fas fa-coffee"></i> Drinks
+                                </button>
+                                <button class="filter-btn" data-category="Chicken">
+                                    <i class="fas fa-drumstick-bite"></i> Chicken
+                                </button>
+                                <button class="filter-btn" data-category="Pasta">
+                                    <i class="fas fa-utensils"></i> Pasta
+                                </button>
+                            </div>
+                        </div>
+                        <div id="itemSuggestions" class="suggestions-list"></div>
+                        <div id="itemGrid" class="item-grid-modern"></div>
+                        <div id="statusIndicator" style="padding: 10px; margin: 10px 0; border-radius: 5px; text-align: center; font-weight: bold;"></div>
+                    </div>
+
+                    <!-- Cart Sidebar -->
+                    <div class="cart-sidebar">
+                        <div class="cart-card">
+                            <div class="cart-header">
+                                <h3><i class="fas fa-shopping-cart"></i> Order Cart</h3>
+                                <span class="cart-count" id="cartCount">0</span>
+                            </div>
+                            <div id="cartItems" class="cart-items-container"></div>
+                            <div id="orderSummary" class="order-summary-card">
+                                <div class="discount-section">
+                                    <label for="orderDiscount">Order Discount (%):</label>
+                                    <input type="number" id="orderDiscount" min="0" max="100" value="0">
+                                </div>
+                                <div class="summary-line">
+                                    <span>Subtotal:</span>
+                                    <span id="subtotal">LKR 0.00</span>
+                                </div>
+                                <div class="summary-line">
+                                    <span>Discount:</span>
+                                    <span id="discountAmount">LKR 0.00</span>
+                                </div>
+                                <div class="summary-line total">
+                                    <span>Total:</span>
+                                    <span id="totalAmount">LKR 0.00</span>
+                                </div>
+                            </div>
+                            <div class="order-actions">
+                                <button class="btn btn-primary btn-large place-order-btn" id="placeOrderBtn" disabled>
+                                    <i class="fas fa-shopping-cart"></i>
+                                    Place Order
+                                </button>
+                                <button class="btn btn-secondary btn-large cancel-order-btn" id="cancelOrderBtn">
+                                    <i class="fas fa-times"></i>
+                                    Cancel Order
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    <div id="ordersList" class="orders-list"></div>
+                </div>
+
+                <!-- Recent Orders Section -->
+                <div class="recent-orders-section">
+                    <div class="section-toggle">
+                            <h3><i class="fas fa-history"></i> Recent Orders</h3>
+                            <button class="toggle-btn" id="toggleOrders">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div class="recent-orders-content" id="recentOrdersContent">
+                            <div class="orders-search-bar">
+                                <div class="search-container">
+                                    <i class="fas fa-search search-icon"></i>
+                                    <input type="text" id="orderSearch" placeholder="Search orders...">
+                                </div>
+                            </div>
+                            <div id="ordersList" class="orders-list-modern"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -96,29 +181,90 @@
     
     <!-- Customer Modal -->
     <div id="customerModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content large-modal">
             <div class="modal-header">
-                <h2>Add Customer</h2>
+                <h2><i class="fas fa-user-plus"></i> Add Customer</h2>
                 <span class="close">&times;</span>
             </div>
-            <form id="customerForm">
-                <div class="form-group">
-                    <label for="customerName">Name</label>
-                    <input type="text" id="customerName" required>
-                </div>
-                <div class="form-group">
-                    <label for="customerPhone">Phone</label>
-                    <input type="tel" id="customerPhone" required>
-                </div>
-                <div class="form-group">
-                    <label for="customerEmail">Email</label>
-                    <input type="email" id="customerEmail">
+            <form id="customerForm" class="modern-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="customerName"><i class="fas fa-user"></i> Full Name</label>
+                        <input type="text" id="customerName" required placeholder="Enter customer's full name">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerPhone"><i class="fas fa-phone"></i> Phone Number</label>
+                        <input type="tel" id="customerPhone" required placeholder="Enter phone number">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerEmail"><i class="fas fa-envelope"></i> Email Address</label>
+                        <input type="email" id="customerEmail" placeholder="Enter email address">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerAddress"><i class="fas fa-map-marker-alt"></i> Address</label>
+                        <textarea id="customerAddress" rows="3" placeholder="Enter customer's address"></textarea>
+                    </div>
                 </div>
                 <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" id="cancelCustomerBtn">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Customer</button>
+                    <button type="button" class="btn btn-secondary" id="cancelCustomerBtn">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Add Customer
+                    </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Customer Selection Modal -->
+    <div id="customerSelectionModal" class="modal">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h2>Select Customer</h2>
+                <span class="close" id="closeCustomerSelection">&times;</span>
+            </div>
+            <div class="customer-selection-content">
+                <div class="customer-search-section">
+                    <div class="search-container">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="customerSearchInput" placeholder="Search customers by name or phone...">
+                    </div>
+                </div>
+                <div id="customerGridModal" class="customer-grid">
+                    <!-- Customers will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Order Confirmation Modal -->
+    <div id="newOrderModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="warning-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h2>Start New Order</h2>
+                <span class="close" id="closeNewOrderModal">&times;</span>
+            </div>
+            <div class="new-order-modal-body">
+                <div class="new-order-info" id="newOrderInfo">
+                    <!-- Order info will be populated here -->
+                </div>
+                <div class="new-order-warning-text">
+                    <p>You have items in your cart. Starting a new order will clear your current cart and customer selection.</p>
+                    <p class="warning-highlight">This action cannot be undone.</p>
+                </div>
+            </div>
+            <div class="modal-actions new-order-actions">
+                <button type="button" class="btn btn-secondary" id="cancelNewOrderBtn">
+                    <i class="fas fa-times"></i> Keep Current Order
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmNewOrderBtn">
+                    <i class="fas fa-plus-circle"></i> Start New Order
+                </button>
+            </div>
         </div>
     </div>
     
