@@ -140,11 +140,16 @@ function searchItems(query) {
     );
 }
 
+// Show out of stock message when clicking on out of stock items
+function showOutOfStockMessage(itemName) {
+    showNotification(`Sorry, ${itemName} is currently out of stock and cannot be added to your cart.`, 'error', 5000);
+}
+
 // Add item to cart with inventory check
 function addToCart(item) {
     // Check if item is in stock
     if (item.quantity <= 0) {
-        alert(`Sorry, ${item.name} is currently out of stock!`);
+        showNotification(`Sorry, ${item.name} is currently out of stock!`, 'error');
         return;
     }
 
@@ -154,7 +159,7 @@ function addToCart(item) {
     const newQuantity = currentQuantity + 1;
 
     if (newQuantity > item.quantity) {
-        alert(`Sorry, only ${item.quantity} units of ${item.name} are available!`);
+        showNotification(`Sorry, only ${item.quantity} units of ${item.name} are available!`, 'error');
         return;
     }
 
@@ -1135,7 +1140,7 @@ function renderItemGrid(items) {
         const isLowStock = item.quantity <= 5 && item.quantity > 0;
 
         html += `
-            <div class="item-card-horizontal ${isOutOfStock ? 'out-of-stock' : ''}" onclick="addToCartFromSearch('${item.code}')">
+            <div class="item-card-horizontal ${isOutOfStock ? 'out-of-stock' : ''}" ${isOutOfStock ? `onclick="showOutOfStockMessage('${item.name}')"` : `onclick="addToCartFromSearch('${item.code}')"`}>
                 <div class="item-image-horizontal">
                     <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/120x120?text=No+Image'">
                     ${isOutOfStock ? '<div class="out-of-stock-overlay">Out of Stock</div>' : ''}
@@ -1437,97 +1442,52 @@ document.getElementById('orderSearch').addEventListener('input', (e) => {
 // Order discount change
 document.getElementById('orderDiscount').addEventListener('input', updateOrderSummary);
 
-// Notification system
-function showNotification(message, type = 'info') {
+// Enhanced notification system
+function showNotification(message, type = 'info', duration = 4000) {
     // Remove existing notifications
-    const existingNotifications = document.querySelectorAll('.notification');
-    existingNotifications.forEach(notification => document.body.removeChild(notification));
+    const existingNotifications = document.querySelectorAll('.side-notification');
+    existingNotifications.forEach(notification => notification.remove());
 
     // Create notification element
     const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 16px 24px;
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        z-index: 10000;
-        font-weight: 500;
-        font-size: 0.95rem;
-        max-width: 400px;
-        animation: slideInRight 0.3s ease-out;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    `;
+    notification.className = `side-notification ${type}`;
 
-    // Set colors and icons based on type
-    let bgColor, textColor, icon;
-    switch(type) {
-        case 'success':
-            bgColor = 'linear-gradient(135deg, #10b981, #059669)';
-            textColor = 'white';
-            icon = 'fas fa-check-circle';
-            break;
-        case 'error':
-            bgColor = 'linear-gradient(135deg, #ef4444, #dc2626)';
-            textColor = 'white';
-            icon = 'fas fa-exclamation-circle';
-            break;
-        case 'warning':
-            bgColor = 'linear-gradient(135deg, #f59e0b, #d97706)';
-            textColor = 'white';
-            icon = 'fas fa-exclamation-triangle';
-            break;
-        default:
-            bgColor = 'linear-gradient(135deg, #3b82f6, #2563eb)';
-            textColor = 'white';
-            icon = 'fas fa-info-circle';
-    }
-
-    notification.style.background = bgColor;
-    notification.style.color = textColor;
+    // Set icon based on type
+    let icon = 'fa-info-circle';
+    if (type === 'success') icon = 'fa-check-circle';
+    if (type === 'warning') icon = 'fa-exclamation-triangle';
+    if (type === 'error') icon = 'fa-times-circle';
 
     notification.innerHTML = `
-        <i class="${icon}" style="font-size: 1.2rem;"></i>
-        <span>${message}</span>
-        <button onclick="this.parentElement.remove()" style="margin-left: auto; background: none; border: none; color: ${textColor}; cursor: pointer; padding: 4px; border-radius: 50%; transition: background 0.2s;">
+        <div class="notification-icon">
+            <i class="fas ${icon}"></i>
+        </div>
+        <div class="notification-content">
+            <div class="notification-message">${message}</div>
+        </div>
+        <button class="notification-close" onclick="this.parentElement.remove()">
             <i class="fas fa-times"></i>
         </button>
+        <div class="notification-progress"></div>
     `;
 
     document.body.appendChild(notification);
 
-    // Auto remove after 5 seconds
-    setTimeout(() => {
-        if (notification.parentElement) {
-            notification.style.animation = 'slideOutRight 0.3s ease-in';
-            setTimeout(() => {
-                if (notification.parentElement) {
-                    document.body.removeChild(notification);
-                }
-            }, 300);
-        }
-    }, 5000);
-}
+    // Animate in
+    setTimeout(() => notification.classList.add('show'), 10);
 
-// Add notification animations to CSS if not already present
-if (!document.querySelector('#notification-styles')) {
-    const style = document.createElement('style');
-    style.id = 'notification-styles';
-    style.textContent = `
-        @keyframes slideInRight {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slideOutRight {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
-        }
-    `;
-    document.head.appendChild(style);
+    // Auto remove after duration
+    const progressBar = notification.querySelector('.notification-progress');
+    progressBar.style.animationDuration = `${duration}ms`;
+
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.parentElement.removeChild(notification);
+            }
+        }, 300);
+    }, duration);
 }
 
 // Update place order button state
