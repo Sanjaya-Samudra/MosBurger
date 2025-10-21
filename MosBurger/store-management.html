@@ -26,88 +26,272 @@
         </nav>
         
         <main class="main-content">
-            <header class="content-header">
-                <h1>Store Management</h1>
-                <button class="btn btn-primary" id="addItemBtn">
-                    <i class="fas fa-plus"></i> Add Item
-                </button>
+            <header class="content-header-modern store-header">
+                <div class="header-content-modern">
+                    <div class="header-title-section">
+                        <div class="header-icon-modern">
+                            <i class="fas fa-store"></i>
+                        </div>
+                        <div class="header-text-modern">
+                            <h1>Store Management</h1>
+                            <p class="header-subtitle-modern">Manage your inventory, track stock levels, and optimize your store operations</p>
+                        </div>
+                    </div>
+                    <div class="header-stats-modern">
+                        <div class="header-stat-item">
+                            <span class="header-stat-value" id="headerTotalItems">20</span>
+                            <span class="header-stat-label">Total Items</span>
+                        </div>
+                        <div class="header-stat-item">
+                            <span class="header-stat-value" id="headerInStock">18</span>
+                            <span class="header-stat-label">In Stock</span>
+                        </div>
+                        <div class="header-stat-item">
+                            <span class="header-stat-value" id="headerLowStock">2</span>
+                            <span class="header-stat-label">Low Stock</span>
+                        </div>
+                    </div>
+                    <div class="header-actions-modern">
+                        <button class="btn btn-primary-modern" id="addItemBtn">
+                            <i class="fas fa-plus"></i>
+                            <span>Add New Item</span>
+                        </button>
+                        <button class="btn btn-outline-modern" id="exportBtn">
+                            <i class="fas fa-download"></i>
+                            <span>Export Data</span>
+                        </button>
+                    </div>
+                </div>
             </header>
-            
+
+            <!-- Enhanced Stats Section -->
+            <div class="store-stats-modern">
+                <div class="stats-header-modern">
+                    <h2><i class="fas fa-chart-line"></i> Store Overview</h2>
+                    <p class="stats-subtitle">Real-time inventory and stock insights</p>
+                </div>
+                <div class="stats-grid-modern">
+                    <div class="stat-card-modern total-items">
+                        <div class="stat-card-inner">
+                            <div class="stat-icon-modern">
+                                <i class="fas fa-cubes"></i>
+                            </div>
+                            <div class="stat-content-modern">
+                                <div class="stat-value-modern" id="totalItemsCount">20</div>
+                                <div class="stat-label-modern">Total Items</div>
+                                <div class="stat-trend-modern">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>+2 this week</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stat-card-bg"></div>
+                    </div>
+
+                    <div class="stat-card-modern in-stock">
+                        <div class="stat-card-inner">
+                            <div class="stat-icon-modern">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-content-modern">
+                                <div class="stat-value-modern" id="inStockCount">18</div>
+                                <div class="stat-label-modern">In Stock</div>
+                                <div class="stat-trend-modern positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>90% available</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stat-card-bg"></div>
+                    </div>
+
+                    <div class="stat-card-modern low-stock">
+                        <div class="stat-card-inner">
+                            <div class="stat-icon-modern">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="stat-content-modern">
+                                <div class="stat-value-modern warning" id="lowStockCount">2</div>
+                                <div class="stat-label-modern">Low Stock</div>
+                                <div class="stat-trend-modern warning">
+                                    <i class="fas fa-arrow-down"></i>
+                                    <span>Needs attention</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stat-card-bg"></div>
+                    </div>
+
+                    <div class="stat-card-modern out-stock">
+                        <div class="stat-card-inner">
+                            <div class="stat-icon-modern">
+                                <i class="fas fa-times-circle"></i>
+                            </div>
+                            <div class="stat-content-modern">
+                                <div class="stat-value-modern danger" id="outOfStockCount">0</div>
+                                <div class="stat-label-modern">Out of Stock</div>
+                                <div class="stat-trend-modern danger">
+                                    <i class="fas fa-minus"></i>
+                                    <span>All stocked</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stat-card-bg"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enhanced Filters Section -->
             <div class="filters-section">
                 <div class="search-container">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="searchInput" placeholder="Search items by name or code..." class="search-input">
+                    <input type="text" id="searchInput" placeholder="Search items by name, code, or category..." class="search-input">
+                    <div class="search-suggestions" id="searchSuggestions"></div>
                 </div>
-                <select id="categoryFilter" class="filter-select">
-                    <option value="">All Categories</option>
-                    <option value="Burgers">Burgers</option>
-                    <option value="Submarines">Submarines</option>
-                    <option value="Fries">Fries</option>
-                    <option value="Pasta">Pasta</option>
-                    <option value="Chicken">Chicken</option>
-                    <option value="Beverages">Beverages</option>
-                </select>
+                <div class="filter-controls">
+                    <select id="categoryFilter" class="filter-select">
+                        <option value="">All Categories</option>
+                        <option value="Burgers">🍔 Burgers</option>
+                        <option value="Submarines">🥖 Submarines</option>
+                        <option value="Fries">🍟 Fries</option>
+                        <option value="Pasta">🍝 Pasta</option>
+                        <option value="Chicken">🍗 Chicken</option>
+                        <option value="Beverages">🥤 Beverages</option>
+                    </select>
+                    <select id="stockFilter" class="filter-select">
+                        <option value="">All Stock Levels</option>
+                        <option value="good">✅ In Stock</option>
+                        <option value="low">⚠️ Low Stock</option>
+                        <option value="critical">🚨 Critical</option>
+                    </select>
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="grid" title="Grid View">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button class="view-btn" data-view="list" title="List View">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
-            
-            <div class="items-grid" id="itemsGrid">
+
+            <!-- Items Container -->
+            <div class="items-container" id="itemsContainer">
                 <!-- Items will be populated by JavaScript -->
+            </div>
+
+            <!-- Loading indicator -->
+            <div class="loading-container" id="loadingContainer" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p>Loading your amazing inventory...</p>
             </div>
         </main>
     </div>
     
     <!-- Item Modal -->
     <div id="itemModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content large-modal">
             <div class="modal-header">
-                <h2 id="modalTitle">Add New Item</h2>
-                <span class="close">&times;</span>
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white;">
+                        <i class="fas fa-plus" id="modalIcon"></i>
+                    </div>
+                    <div>
+                        <h2 id="modalTitle">Add New Item</h2>
+                        <span style="color: #666; font-size: 0.9rem;">Fill in the details below to add a new item to your inventory</span>
+                    </div>
+                </div>
+                <span class="close" style="font-size: 2rem; color: #666;">&times;</span>
             </div>
             <form id="itemForm">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="itemCode">Item Code</label>
-                        <input type="text" id="itemCode" name="itemCode" required>
+                <!-- Photo Upload Section -->
+                <div class="photo-upload-section">
+                    <div class="photo-upload-container">
+                        <div class="photo-preview" id="photoPreview">
+                            <i class="fas fa-camera"></i>
+                            <span>Click to upload photo</span>
+                        </div>
+                        <input type="file" id="itemPhoto" name="itemPhoto" accept="image/*" style="display: none;">
+                        <div class="photo-upload-info">
+                            <small>Upload a high-quality image of your item (JPG, PNG, max 5MB)</small>
+                        </div>
                     </div>
+                </div>
+
+                <!-- Form Fields -->
+                <div class="form-grid">
                     <div class="form-group">
-                        <label for="category">Category</label>
+                        <label for="itemCode">
+                            <i class="fas fa-hashtag"></i> Item Code
+                        </label>
+                        <input type="text" id="itemCode" name="itemCode" placeholder="e.g., BUR001" required>
+                        <small class="form-hint">Unique identifier for the item</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">
+                            <i class="fas fa-tags"></i> Category
+                        </label>
                         <select id="category" name="category" required>
                             <option value="">Select Category</option>
-                            <option value="Burgers">Burgers</option>
-                            <option value="Submarines">Submarines</option>
-                            <option value="Fries">Fries</option>
-                            <option value="Pasta">Pasta</option>
-                            <option value="Chicken">Chicken</option>
-                            <option value="Beverages">Beverages</option>
+                            <option value="Burgers">🍔 Burgers</option>
+                            <option value="Submarines">🥖 Submarines</option>
+                            <option value="Fries">🍟 Fries</option>
+                            <option value="Pasta">🍝 Pasta</option>
+                            <option value="Chicken">🍗 Chicken</option>
+                            <option value="Beverages">🥤 Beverages</option>
                         </select>
+                        <small class="form-hint">Choose the appropriate category</small>
                     </div>
-                </div>
-                <div class="form-group full-width">
-                    <label for="itemName">Item Name</label>
-                    <input type="text" id="itemName" name="itemName" required>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="price">Price (LKR)</label>
-                        <input type="number" id="price" name="price" step="0.01" min="0" required>
+
+                    <div class="form-group full-width">
+                        <label for="itemName">
+                            <i class="fas fa-utensils"></i> Item Name
+                        </label>
+                        <input type="text" id="itemName" name="itemName" placeholder="e.g., Classic Cheese Burger" required>
+                        <small class="form-hint">Full name of the menu item</small>
                     </div>
+
                     <div class="form-group">
-                        <label for="discount">Discount (%)</label>
-                        <input type="number" id="discount" name="discount" min="0" max="100" value="0">
+                        <label for="price">
+                            <i class="fas fa-dollar-sign"></i> Price (LKR)
+                        </label>
+                        <input type="number" id="price" name="price" step="0.01" min="0" placeholder="0.00" required>
+                        <small class="form-hint">Selling price per unit</small>
                     </div>
-                </div>
-                <div class="form-row">
+
                     <div class="form-group">
-                        <label for="quantity">Quantity</label>
-                        <input type="number" id="quantity" name="quantity" min="0" required>
+                        <label for="discount">
+                            <i class="fas fa-percent"></i> Discount (%)
+                        </label>
+                        <input type="number" id="discount" name="discount" min="0" max="100" value="0" placeholder="0">
+                        <small class="form-hint">Optional discount percentage</small>
                     </div>
+
                     <div class="form-group">
-                        <label for="expiryDate">Expiry Date (Optional)</label>
+                        <label for="quantity">
+                            <i class="fas fa-boxes"></i> Quantity
+                        </label>
+                        <input type="number" id="quantity" name="quantity" min="0" placeholder="0" required>
+                        <small class="form-hint">Current stock quantity</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expiryDate">
+                            <i class="fas fa-calendar-alt"></i> Expiry Date
+                        </label>
                         <input type="date" id="expiryDate" name="expiryDate">
+                        <small class="form-hint">Optional expiry date</small>
                     </div>
                 </div>
+
                 <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Item</button>
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> <span id="submitBtnText">Save Item</span>
+                    </button>
                 </div>
             </form>
         </div>
