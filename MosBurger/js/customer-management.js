@@ -43,6 +43,54 @@ function saveCustomers() {
     localStorage.setItem('customers', JSON.stringify(customers));
 }
 
+// Enhanced notification system
+function showNotification(message, type = 'info', duration = 4000) {
+    // Remove existing notifications
+    const existingNotifications = document.querySelectorAll('.side-notification');
+    existingNotifications.forEach(notification => notification.remove());
+
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `side-notification ${type}`;
+
+    // Set icon based on type
+    let icon = 'fa-info-circle';
+    if (type === 'success') icon = 'fa-check-circle';
+    if (type === 'warning') icon = 'fa-exclamation-triangle';
+    if (type === 'error') icon = 'fa-times-circle';
+
+    notification.innerHTML = `
+        <div class="notification-icon">
+            <i class="fas ${icon}"></i>
+        </div>
+        <div class="notification-content">
+            <div class="notification-message">${message}</div>
+        </div>
+        <button class="notification-close" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="notification-progress"></div>
+    `;
+
+    document.body.appendChild(notification);
+
+    // Animate in
+    setTimeout(() => notification.classList.add('show'), 10);
+
+    // Auto remove after duration
+    const progressBar = notification.querySelector('.notification-progress');
+    progressBar.style.animationDuration = `${duration}ms`;
+
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.parentElement.removeChild(notification);
+            }
+        }, 300);
+    }, duration);
+}
+
 // Get customer order statistics
 function getCustomerStats(customerId) {
     const customerOrders = orders.filter(order => order.customerId === customerId);
@@ -428,7 +476,7 @@ function updateCustomerStats() {
 // Export customers to CSV
 function exportCustomers() {
     if (customers.length === 0) {
-        alert('No customers to export.');
+        showNotification('No customers found to export!', 'warning');
         return;
     }
 
@@ -478,6 +526,8 @@ function exportCustomers() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+
+    showNotification(`Successfully exported ${customers.length} customers to CSV!`, 'success');
 }
 
 // Filter customers
@@ -567,6 +617,7 @@ customerForm.addEventListener('submit', (e) => {
     renderCustomers();
     updateCustomerStats();
     customerModal.style.display = 'none';
+    showNotification(editingCustomerId ? 'Customer updated successfully.' : 'Customer added successfully.', 'success');
 });
 
 // Modal close functionality
@@ -592,6 +643,7 @@ document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
         renderCustomers();
         updateCustomerStats();
         deleteCustomerModal.style.display = 'none';
+        showNotification('Customer deleted successfully.', 'success');
     }
 });
 

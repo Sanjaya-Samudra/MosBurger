@@ -895,6 +895,241 @@ function generatePDFReport() {
     console.log('PDF Report Generated:', reportContent);
 }
 
+// Export functions for individual reports
+function exportSalesReport() {
+    const month = parseInt(document.getElementById('salesMonth').value);
+    const year = parseInt(document.getElementById('salesYear').value);
+    
+    const monthOrders = orders.filter(order => {
+        const orderDate = new Date(order.timestamp);
+        return orderDate.getMonth() === month && orderDate.getFullYear() === year;
+    });
+    
+    // Group by day
+    const dailySales = {};
+    monthOrders.forEach(order => {
+        const day = new Date(order.timestamp).getDate();
+        if (!dailySales[day]) {
+            dailySales[day] = { orders: 0, revenue: 0 };
+        }
+        dailySales[day].orders += 1;
+        dailySales[day].revenue += order.total;
+    });
+    
+    // Create CSV content
+    let csvContent = 'data:text/csv;charset=utf-8,';
+    csvContent += `MOS Burgers - Sales Performance Report\n`;
+    csvContent += `Month: ${new Date(year, month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}\n`;
+    csvContent += `Export Date: ${new Date().toLocaleDateString()}\n\n`;
+    
+    csvContent += 'Day,Orders,Revenue (LKR)\n';
+    Object.keys(dailySales)
+        .sort((a, b) => parseInt(a) - parseInt(b))
+        .forEach(day => {
+            csvContent += `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')},${dailySales[day].orders},${dailySales[day].revenue.toFixed(2)}\n`;
+        });
+    
+    // Calculate totals
+    const totalOrders = Object.values(dailySales).reduce((sum, day) => sum + day.orders, 0);
+    const totalRevenue = Object.values(dailySales).reduce((sum, day) => sum + day.revenue, 0);
+    csvContent += `\nTotal Orders:,${totalOrders}\n`;
+    csvContent += `Total Revenue:,LKR ${totalRevenue.toFixed(2)}\n`;
+    
+    // Download the file
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `mos-burgers-sales-${year}-${(month + 1).toString().padStart(2, '0')}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showNotification('Sales performance report exported successfully!', 'success');
+}
+
+function exportCustomersReport() {
+    const period = document.getElementById('customerPeriod').value;
+    let filteredOrders = orders;
+    
+    if (period === 'month') {
+        const now = new Date();
+        filteredOrders = orders.filter(order => {
+            const orderDate = new Date(order.timestamp);
+            return orderDate.getMonth() === now.getMonth() && orderDate.getFullYear() === now.getFullYear();
+        });
+    } else if (period === 'year') {
+        const now = new Date();
+        filteredOrders = orders.filter(order => {
+            const orderDate = new Date(order.timestamp);
+            return orderDate.getFullYear() === now.getFullYear();
+        });
+    }
+    
+    // Group by customer
+    const customerStats = {};
+    filteredOrders.forEach(order => {
+        const customerId = order.customerId;
+        if (!customerStats[customerId]) {
+            customerStats[customerId] = {
+                name: order.customerName,
+                orders: 0,
+                totalSpent: 0
+            };
+        }
+        customerStats[customerId].orders += 1;
+        customerStats[customerId].totalSpent += order.total;
+    });
+    
+    // Sort by total spent
+    const sortedCustomers = Object.values(customerStats)
+        .sort((a, b) => b.totalSpent - a.totalSpent)
+        .slice(0, 10); // Top 10 customers
+    
+    // Create CSV content
+    let csvContent = 'data:text/csv;charset=utf-8,';
+    csvContent += `MOS Burgers - Top Customers Report\n`;
+    csvContent += `Period: ${period === 'month' ? 'This Month' : period === 'year' ? 'This Year' : 'All Time'}\n`;
+    csvContent += `Export Date: ${new Date().toLocaleDateString()}\n\n`;
+    
+    csvContent += 'Rank,Customer Name,Orders,Total Spent (LKR)\n';
+    sortedCustomers.forEach((customer, index) => {
+        csvContent += `${index + 1},"${customer.name}",${customer.orders},${customer.totalSpent.toFixed(2)}\n`;
+    });
+    
+    // Download the file
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `mos-burgers-top-customers-${period}-${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showNotification('Top customers report exported successfully!', 'success');
+}
+
+function exportItemsReport() {
+    const period = document.getElementById('itemsPeriod').value;
+    let filteredOrders = orders;
+    
+    if (period === 'month') {
+        const now = new Date();
+        filteredOrders = orders.filter(order => {
+            const orderDate = new Date(order.timestamp);
+            return orderDate.getMonth() === now.getMonth() && orderDate.getFullYear() === now.getFullYear();
+        });
+    } else if (period === 'year') {
+        const now = new Date();
+        filteredOrders = orders.filter(order => {
+            const orderDate = new Date(order.timestamp);
+            return orderDate.getFullYear() === now.getFullYear();
+        });
+    }
+    
+    // Group by item
+    const itemStats = {};
+    filteredOrders.forEach(order => {
+        order.items.forEach(item => {
+            const itemCode = item.code;
+            if (!itemStats[itemCode]) {
+                itemStats[itemCode] = {
+                    name: item.name,
+                    quantity: 0,
+                    revenue: 0
+                };
+            }
+            itemStats[itemCode].quantity += item.quantity;
+            itemStats[itemCode].revenue += item.cartPrice;
+        });
+    });
+    
+    // Sort by quantity sold
+    const sortedItems = Object.values(itemStats)
+        .sort((a, b) => b.quantity - a.quantity)
+        .slice(0, 10); // Top 10 items
+    
+    // Calculate total quantity for market share
+    const totalQuantity = sortedItems.reduce((sum, item) => sum + item.quantity, 0);
+    
+    // Create CSV content
+    let csvContent = 'data:text/csv;charset=utf-8,';
+    csvContent += `MOS Burgers - Popular Items Report\n`;
+    csvContent += `Period: ${period === 'month' ? 'This Month' : period === 'year' ? 'This Year' : 'All Time'}\n`;
+    csvContent += `Export Date: ${new Date().toLocaleDateString()}\n\n`;
+    
+    csvContent += 'Item Name,Quantity Sold,Revenue (LKR),Market Share (%)\n';
+    sortedItems.forEach(item => {
+        const marketShare = ((item.quantity / totalQuantity) * 100).toFixed(1);
+        csvContent += `"${item.name}",${item.quantity},${item.revenue.toFixed(2)},${marketShare}%\n`;
+    });
+    
+    // Download the file
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `mos-burgers-popular-items-${period}-${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showNotification('Popular items report exported successfully!', 'success');
+}
+
+function exportAnnualReport() {
+    const year = parseInt(document.getElementById('annualYear').value);
+    
+    // Group by month
+    const monthlyStats = {};
+    for (let month = 0; month < 12; month++) {
+        monthlyStats[month] = { orders: 0, revenue: 0 };
+    }
+    
+    orders.filter(order => {
+        const orderDate = new Date(order.timestamp);
+        return orderDate.getFullYear() === year;
+    }).forEach(order => {
+        const month = new Date(order.timestamp).getMonth();
+        monthlyStats[month].orders += 1;
+        monthlyStats[month].revenue += order.total;
+    });
+    
+    // Create CSV content
+    let csvContent = 'data:text/csv;charset=utf-8,';
+    csvContent += `MOS Burgers - Annual Performance Report\n`;
+    csvContent += `Year: ${year}\n`;
+    csvContent += `Export Date: ${new Date().toLocaleDateString()}\n\n`;
+    
+    csvContent += 'Month,Orders,Revenue (LKR),Growth (%)\n';
+    
+    let previousRevenue = 0;
+    Object.keys(monthlyStats)
+        .sort((a, b) => parseInt(a) - parseInt(b))
+        .forEach(month => {
+            const stats = monthlyStats[month];
+            const monthName = new Date(year, month).toLocaleDateString('en-US', { month: 'long' });
+            const growth = previousRevenue > 0 ? ((stats.revenue - previousRevenue) / previousRevenue * 100).toFixed(1) : 'N/A';
+            csvContent += `${monthName},${stats.orders},${stats.revenue.toFixed(2)},${growth === 'N/A' ? 'N/A' : growth + '%'}\n`;
+            previousRevenue = stats.revenue;
+        });
+    
+    // Calculate annual totals
+    const totalOrders = Object.values(monthlyStats).reduce((sum, month) => sum + month.orders, 0);
+    const totalRevenue = Object.values(monthlyStats).reduce((sum, month) => sum + month.revenue, 0);
+    csvContent += `\nAnnual Total Orders:,${totalOrders}\n`;
+    csvContent += `Annual Total Revenue:,LKR ${totalRevenue.toFixed(2)}\n`;
+    
+    // Download the file
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `mos-burgers-annual-report-${year}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showNotification('Annual performance report exported successfully!', 'success');
+}
+
 // Event listeners
 document.getElementById('salesMonth').addEventListener('change', generateMonthlySalesReport);
 document.getElementById('salesYear').addEventListener('change', generateMonthlySalesReport);
@@ -1188,17 +1423,51 @@ Report generated by MOS Burgers Management System
 
 // Utility function for notifications
 function showNotification(message, type = 'info') {
+    // Remove existing notifications
+    const existingNotifications = document.querySelectorAll('.side-notification');
+    existingNotifications.forEach(notification => notification.remove());
+
+    // Create notification element
     const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
+    notification.className = `side-notification ${type}`;
+
+    // Set icon based on type
+    let icon = 'fa-info-circle';
+    if (type === 'success') icon = 'fa-check-circle';
+    if (type === 'warning') icon = 'fa-exclamation-triangle';
+    if (type === 'error') icon = 'fa-times-circle';
+
     notification.innerHTML = `
-        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
-        ${message}
+        <div class="notification-icon">
+            <i class="fas ${icon}"></i>
+        </div>
+        <div class="notification-content">
+            <div class="notification-message">${message}</div>
+        </div>
+        <button class="notification-close" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="notification-progress"></div>
     `;
+
     document.body.appendChild(notification);
-    
+
+    // Animate in
+    setTimeout(() => notification.classList.add('show'), 10);
+
+    // Auto remove after duration
+    const progressBar = notification.querySelector('.notification-progress');
+    const duration = 4000; // 4 seconds for reports
+    progressBar.style.animationDuration = `${duration}ms`;
+
     setTimeout(() => {
-        notification.remove();
-    }, 3000);
+        notification.classList.remove('show');
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.parentElement.removeChild(notification);
+            }
+        }, 300);
+    }, duration);
 }
 
 // Event listeners
@@ -1209,12 +1478,48 @@ document.getElementById('itemsPeriod').addEventListener('change', generatePopula
 document.getElementById('annualYear').addEventListener('change', generateAnnualReport);
 document.getElementById('generateReportBtn').addEventListener('click', generatePDFReport);
 
-// Initialize
-generateSampleData();
-initializeYearDropdowns();
-initializeCharts();
-updateSummaryStats();
-generateMonthlySalesReport();
-generateTopCustomersReport();
-generatePopularItemsReport();
-generateAnnualReport();
+// Add export button event listeners
+document.getElementById('exportSalesBtn').addEventListener('click', exportSalesReport);
+document.getElementById('exportCustomersBtn').addEventListener('click', exportCustomersReport);
+document.getElementById('exportItemsBtn').addEventListener('click', exportItemsReport);
+document.getElementById('exportAnnualBtn').addEventListener('click', exportAnnualReport);
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Reports page DOM loaded, initializing...');
+
+    // Generate sample data if needed
+    generateSampleData();
+
+    // Initialize dropdowns
+    initializeYearDropdowns();
+
+    // Initialize charts
+    initializeCharts();
+
+    // Update summary statistics
+    updateSummaryStats();
+
+    // Generate initial reports
+    generateMonthlySalesReport();
+    generateTopCustomersReport();
+    generatePopularItemsReport();
+    generateAnnualReport();
+
+    console.log('Reports page initialization complete!');
+});
+
+// Also initialize immediately if DOM is already loaded
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    setTimeout(() => {
+        console.log('DOM already loaded, initializing reports immediately...');
+        generateSampleData();
+        initializeYearDropdowns();
+        initializeCharts();
+        updateSummaryStats();
+        generateMonthlySalesReport();
+        generateTopCustomersReport();
+        generatePopularItemsReport();
+        generateAnnualReport();
+    }, 100);
+}

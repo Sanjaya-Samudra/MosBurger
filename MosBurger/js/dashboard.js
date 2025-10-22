@@ -416,7 +416,7 @@ function viewOrder(orderId) {
                     <button class="btn btn-primary" onclick="editOrder('${order.id}')">
                         <i class="fas fa-edit"></i> Edit Order
                     </button>
-                    <button class="btn btn-secondary" onclick="printOrder('${order.id}')">
+                    <button class="btn btn-secondary" onclick="printOrder('${order.id}')" title="Print Receipt">
                         <i class="fas fa-print"></i> Print Receipt
                     </button>
                     <button class="btn btn-danger" onclick="cancelOrder('${order.id}')">
@@ -1444,63 +1444,133 @@ function confirmCancelOrder(orderId) {
     }
 }
 
-// Notification system
-function showNotification(message, type = 'info') {
+// Export functionality for dashboard
+function exportDashboardData() {
+    try {
+        const customers = JSON.parse(localStorage.getItem('customers')) || [];
+        const orders = JSON.parse(localStorage.getItem('orders')) || [];
+        const foodItems = JSON.parse(localStorage.getItem('foodItems')) || [];
+
+        // Create CSV content for customers
+        let csvContent = 'data:text/csv;charset=utf-8,';
+        csvContent += 'MOS Burgers - Dashboard Data Export\n';
+        csvContent += 'Export Date:,' + new Date().toLocaleString() + '\n\n';
+
+        // Customers section
+        csvContent += 'CUSTOMERS\n';
+        csvContent += 'ID,Name,Email,Phone,Address,Total Orders,Total Spent,Join Date\n';
+        customers.forEach(customer => {
+            const customerOrders = orders.filter(order => order.customerId === customer.id);
+            const totalSpent = customerOrders.reduce((sum, order) => sum + order.total, 0);
+            csvContent += `"${customer.id}","${customer.name}","${customer.email}","${customer.phone || ''}","${customer.address || ''}",${customerOrders.length},"LKR ${totalSpent.toFixed(2)}","${new Date(customer.joinDate || Date.now()).toLocaleDateString()}"\n`;
+        });
+        csvContent += '\n';
+
+        // Orders section
+        csvContent += 'ORDERS\n';
+        csvContent += 'Order ID,Customer Name,Items Count,Total Amount,Status,Order Type,Payment Method,Order Date\n';
+        orders.forEach(order => {
+            const customer = customers.find(c => c.id === order.customerId);
+            const customerName = customer ? customer.name : 'Unknown Customer';
+            const itemsCount = order.items ? order.items.reduce((sum, item) => sum + item.quantity, 0) : 0;
+            csvContent += `"${order.id}","${customerName}",${itemsCount},"LKR ${order.total.toFixed(2)}","${order.status || 'pending'}","${order.type || 'dine-in'}","${order.paymentMethod || 'cash'}","${new Date(order.timestamp).toLocaleString()}"\n`;
+        });
+        csvContent += '\n';
+
+        // Food Items section
+        csvContent += 'FOOD ITEMS\n';
+        csvContent += 'Code,Name,Category,Price,Discount,Quantity,Status\n';
+        foodItems.forEach(item => {
+            const status = item.quantity <= 0 ? 'Out of Stock' :
+                          item.quantity <= 5 ? 'Low Stock' : 'In Stock';
+            const discountPrice = item.discount > 0 ? item.price - (item.price * item.discount / 100) : item.price;
+            csvContent += `"${item.code}","${item.name}","${item.category}","LKR ${discountPrice.toFixed(2)}",${item.discount}%,${item.quantity},"${status}"\n`;
+        });
+        csvContent += '\n';
+
+        // Summary statistics
+        const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
+        const todayOrders = orders.filter(order => {
+            const today = new Date();
+            const orderDate = new Date(order.timestamp);
+            return orderDate.toDateString() === today.toDateString();
+        });
+        const todayRevenue = todayOrders.reduce((sum, order) => sum + order.total, 0);
+
+        csvContent += 'SUMMARY STATISTICS\n';
+        csvContent += `Total Customers:,${customers.length}\n`;
+        csvContent += `Total Orders:,${orders.length}\n`;
+        csvContent += `Total Revenue:,LKR ${totalRevenue.toFixed(2)}\n`;
+        csvContent += `Today's Orders:,${todayOrders.length}\n`;
+        csvContent += `Today's Revenue:,LKR ${todayRevenue.toFixed(2)}\n`;
+        csvContent += `Total Food Items:,${foodItems.length}\n`;
+        csvContent += `In Stock Items:,${foodItems.filter(item => item.quantity > 0).length}\n`;
+        csvContent += `Low Stock Items:,${foodItems.filter(item => item.quantity > 0 && item.quantity <= 10).length}\n`;
+        csvContent += `Out of Stock Items:,${foodItems.filter(item => item.quantity <= 0).length}\n`;
+
+        // Create and download the file
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', `mos-burgers-dashboard-export-${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        showNotification('Dashboard data exported successfully!', 'success');
+    } catch (error) {
+        console.error('Export error:', error);
+        showNotification('Failed to export dashboard data. Please try again.', 'error');
+    }
+}
+
+// Enhanced notification system
+function showNotification(message, type = 'info', duration = 4000) {
+    // Remove existing notifications
+    const existingNotifications = document.querySelectorAll('.side-notification');
+    existingNotifications.forEach(notification => notification.remove());
+
+    // Create notification element
     const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
+    notification.className = `side-notification ${type}`;
+
+    // Set icon based on type
+    let icon = 'fa-info-circle';
+    if (type === 'success') icon = 'fa-check-circle';
+    if (type === 'warning') icon = 'fa-exclamation-triangle';
+    if (type === 'error') icon = 'fa-times-circle';
+
     notification.innerHTML = `
+        <div class="notification-icon">
+            <i class="fas ${icon}"></i>
+        </div>
         <div class="notification-content">
-            <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
-            <span>${message}</span>
+            <div class="notification-message">${message}</div>
         </div>
         <button class="notification-close" onclick="this.parentElement.remove()">
             <i class="fas fa-times"></i>
         </button>
+        <div class="notification-progress"></div>
     `;
 
     document.body.appendChild(notification);
 
-    // Trigger animation
+    // Animate in
     setTimeout(() => notification.classList.add('show'), 10);
 
-    // Auto remove after 5 seconds
+    // Auto remove after duration
+    const progressBar = notification.querySelector('.notification-progress');
+    progressBar.style.animationDuration = `${duration}ms`;
+
     setTimeout(() => {
-        if (notification.parentElement) {
-            notification.remove();
-        }
-    }, 5000);
+        notification.classList.remove('show');
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.parentElement.removeChild(notification);
+            }
+        }, 300);
+    }, duration);
 }
-
-// Close order modal function
-function closeOrderModal() {
-    const orderDetailsModal = document.getElementById('orderDetailsModal');
-    orderDetailsModal.classList.remove('show');
-    setTimeout(() => {
-        orderDetailsModal.style.display = 'none';
-    }, 300);
-}
-
-// Modal close functionality for order modal and initialize everything
-document.addEventListener('DOMContentLoaded', function() {
-    // Add close functionality for order modal
-    const orderModalClose = orderDetailsModal?.querySelector('.close');
-    if (orderModalClose) {
-        orderModalClose.addEventListener('click', () => {
-            closeOrderModal();
-        });
-    }
-
-    // Close modal when clicking outside
-    window.addEventListener('click', (e) => {
-        if (e.target === orderDetailsModal) {
-            closeOrderModal();
-        }
-    });
-
-    // Initialize dashboard and start real-time updates
-    initializeDashboard();
-    startRealTimeUpdates();
-});
 
 // Add CSS animations for the dashboard
 const style = document.createElement('style');
@@ -1538,3 +1608,16 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// Add export button event listener
+document.addEventListener('DOMContentLoaded', function() {
+    // Add export button functionality
+    const exportBtn = document.querySelector('.btn-primary-modern');
+    if (exportBtn && exportBtn.textContent.includes('Export Data')) {
+        exportBtn.addEventListener('click', exportDashboardData);
+    }
+
+    // Initialize dashboard and start real-time updates
+    initializeDashboard();
+    startRealTimeUpdates();
+});

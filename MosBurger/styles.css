@@ -12157,6 +12157,12 @@ body::before {
     align-items: center;
 }
 
+.card-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
 .filter-select {
     padding: 10px 16px;
     border: 2px solid rgba(255, 107, 53, 0.2);
