@@ -708,12 +708,12 @@ body::before {
     border: 1px solid var(--border-color);
 }
 
-.recent-section h2 {
-    font-size: 1.5rem;
+.recent-section .data-table th {
+    background: linear-gradient(135deg, #2d3748, #4a5568);
+    color: #ffffff;
     font-weight: 700;
-    color: var(--text-dark);
-    margin-bottom: 24px;
-    letter-spacing: -0.5px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    border-bottom: 2px solid #e2e8f0;
 }
 
 .table-container {
