@@ -808,57 +808,7 @@ function generatePopularItemsReport() {
     `).join('');
 }
 
-// Generate annual report
-function generateAnnualReport() {
-    const year = parseInt(document.getElementById('annualYear').value);
-    
-    const yearOrders = orders.filter(order => {
-        const orderDate = new Date(order.timestamp);
-        return orderDate.getFullYear() === year;
-    });
-    
-    // Group by month
-    const monthlyData = {};
-    for (let month = 0; month < 12; month++) {
-        monthlyData[month] = { orders: 0, revenue: 0 };
-    }
-    
-    yearOrders.forEach(order => {
-        const month = new Date(order.timestamp).getMonth();
-        monthlyData[month].orders += 1;
-        monthlyData[month].revenue += order.total;
-    });
-    
-    // Calculate growth
-    const monthNames = [
-        'January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'
-    ];
-    
-    // Update table
-    const tbody = document.getElementById('annualBody');
-    tbody.innerHTML = Object.keys(monthlyData).map(month => {
-        const monthNum = parseInt(month);
-        const prevMonth = monthNum > 0 ? monthlyData[monthNum - 1] : null;
-        const growth = prevMonth && prevMonth.revenue > 0 
-            ? ((monthlyData[month].revenue - prevMonth.revenue) / prevMonth.revenue * 100).toFixed(1)
-            : 'N/A';
-        
-        return `
-            <tr>
-                <td>${monthNames[monthNum]}</td>
-                <td>${monthlyData[month].orders}</td>
-                <td>LKR ${monthlyData[month].revenue.toFixed(2)}</td>
-                <td class="${growth !== 'N/A' ? (parseFloat(growth) >= 0 ? 'positive-growth' : 'negative-growth') : ''}">${growth !== 'N/A' ? growth + '%' : 'N/A'}</td>
-            </tr>
-        `;
-    }).join('');
-    
-    // Update chart
-    createAnnualChart();
-}
-
-// Generate PDF report (simplified)
+// Enhanced Annual Report with Growth Indicators
 function generatePDFReport() {
     const stats = calculateSummaryStats();
     const reportContent = `
@@ -1130,13 +1080,7 @@ function exportAnnualReport() {
     showNotification('Annual performance report exported successfully!', 'success');
 }
 
-// Event listeners
-document.getElementById('salesMonth').addEventListener('change', generateMonthlySalesReport);
-document.getElementById('salesYear').addEventListener('change', generateMonthlySalesReport);
-document.getElementById('customerPeriod').addEventListener('change', generateTopCustomersReport);
-document.getElementById('itemsPeriod').addEventListener('change', generatePopularItemsReport);
-document.getElementById('annualYear').addEventListener('change', generateAnnualReport);
-document.getElementById('generateReportBtn').addEventListener('click', generatePDFReport);
+// Event listeners are set up at the end of the file
 
 // Add some sample orders if none exist for demonstration
 if (orders.length === 0) {
@@ -1353,6 +1297,9 @@ function generateAnnualReport() {
             </tr>
         `;
     }).join('');
+    
+    // Update chart
+    createAnnualChart();
 }
 
 // Enhanced PDF Report Generation
