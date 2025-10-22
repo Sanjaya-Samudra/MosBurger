@@ -735,10 +735,22 @@ function updateStats() {
     const lowStock = foodItems.filter(item => item.quantity <= LOW_STOCK_THRESHOLD && item.quantity > CRITICAL_STOCK_THRESHOLD).length;
     const outOfStock = foodItems.filter(item => item.quantity <= CRITICAL_STOCK_THRESHOLD).length;
 
+    // Update main stats cards
     document.getElementById('totalItemsCount').textContent = totalItems;
     document.getElementById('inStockCount').textContent = inStock;
     document.getElementById('lowStockCount').textContent = lowStock;
     document.getElementById('outOfStockCount').textContent = outOfStock;
+
+    // Update header stats
+    const headerTotalItems = document.getElementById('headerTotalItems');
+    const headerInStock = document.getElementById('headerInStock');
+    const headerLowStock = document.getElementById('headerLowStock');
+
+    if (headerTotalItems) headerTotalItems.textContent = totalItems;
+    if (headerInStock) headerInStock.textContent = inStock;
+    if (headerLowStock) headerLowStock.textContent = lowStock;
+
+    console.log('📊 Stats updated:', { totalItems, inStock, lowStock, outOfStock });
 }
 
 // Check for expired items on load
@@ -785,6 +797,9 @@ function initializeFoodItems() {
 
 // Initialize once
 initializeFoodItems();
+
+// Update stats immediately after initialization
+updateStats();
 
 // Show loading indicator
 function showLoading() {

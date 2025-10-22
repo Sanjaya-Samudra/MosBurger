@@ -156,10 +156,10 @@ console.log('📊 Current foodItems length:', foodItems.length);
 // Comprehensive initial items for testing
 const initialItems = [
     // Burgers
-    { code: 'B1001', name: 'Classic Beef Burger (Large)', category: 'Burgers', price: 1200.00, discount: 0, quantity: 25, image: '../../items/Classic Beef Burger (Large).jfif', expiryDate: null },
-    { code: 'B1002', name: 'Classic Beef Burger (Regular)', category: 'Burgers', price: 850.00, discount: 15, quantity: 30, image: '../../items/Classic Beef Burger (Regular).jfif', expiryDate: null },
-    { code: 'B1003', name: 'Chicken Burger (Large)', category: 'Burgers', price: 1100.00, discount: 0, quantity: 20, image: '../../items/Chicken Burger (Large).jfif', expiryDate: null },
-    { code: 'B1004', name: 'Chicken Burger (Regular)', category: 'Burgers', price: 750.00, discount: 10, quantity: 35, image: '../../items/Chicken Burger (Regular).jfif', expiryDate: null },
+    { code: 'B1001', name: 'Classic Beef Burger (Large)', category: 'Burgers', price: 1200.00, discount: 0, quantity: 25, image: '../../items/Classic Beef Burger (Large).jpg', expiryDate: null },
+    { code: 'B1002', name: 'Classic Beef Burger (Regular)', category: 'Burgers', price: 850.00, discount: 15, quantity: 30, image: '../../items/Classic Beef Burger (Regular).jpg', expiryDate: null },
+    { code: 'B1003', name: 'Chicken Burger (Large)', category: 'Burgers', price: 1100.00, discount: 0, quantity: 20, image: '../../items/Chicken Burger (Large).jpg', expiryDate: null },
+    { code: 'B1004', name: 'Chicken Burger (Regular)', category: 'Burgers', price: 750.00, discount: 10, quantity: 35, image: '../../items/Chicken Burger (Regular).jpg', expiryDate: null },
     { code: 'B1005', name: 'Veggie Burger', category: 'Burgers', price: 900.00, discount: 5, quantity: 15, image: '../../items/Veggie Burger.png', expiryDate: null },
 
     // Submarines
@@ -729,16 +729,29 @@ function filterItems() {
 }
 
 // Update statistics display
+// Update statistics display
 function updateStats() {
     const totalItems = foodItems.length;
     const inStock = foodItems.filter(item => item.quantity > 0).length;
     const lowStock = foodItems.filter(item => item.quantity <= LOW_STOCK_THRESHOLD && item.quantity > CRITICAL_STOCK_THRESHOLD).length;
     const outOfStock = foodItems.filter(item => item.quantity <= CRITICAL_STOCK_THRESHOLD).length;
 
+    // Update main stats cards
     document.getElementById('totalItemsCount').textContent = totalItems;
     document.getElementById('inStockCount').textContent = inStock;
     document.getElementById('lowStockCount').textContent = lowStock;
     document.getElementById('outOfStockCount').textContent = outOfStock;
+
+    // Update header stats
+    const headerTotalItems = document.getElementById('headerTotalItems');
+    const headerInStock = document.getElementById('headerInStock');
+    const headerLowStock = document.getElementById('headerLowStock');
+
+    if (headerTotalItems) headerTotalItems.textContent = totalItems;
+    if (headerInStock) headerInStock.textContent = inStock;
+    if (headerLowStock) headerLowStock.textContent = lowStock;
+
+    console.log('📊 Stats updated:', { totalItems, inStock, lowStock, outOfStock });
 }
 
 // Check for expired items on load
@@ -755,15 +768,39 @@ function checkExpiredItems() {
     }
 }
 
-// Initialize with enhanced features
+// Initialize with enhanced features - CONSOLIDATED INITIALIZATION
 console.log('🚀 JavaScript loaded, initializing...');
-foodItems = JSON.parse(localStorage.getItem('foodItems')) || [];
 
-// Load items if none exist
-if (foodItems.length === 0) {
+// Single, robust initialization logic
+function initializeFoodItems() {
+    try {
+        const storedItems = localStorage.getItem('foodItems');
+        if (storedItems) {
+            const parsedItems = JSON.parse(storedItems);
+            // Validate that we have a reasonable number of items (at least 20 for full dataset)
+            if (Array.isArray(parsedItems) && parsedItems.length >= 20) {
+                foodItems = parsedItems;
+                console.log('✅ Loaded', foodItems.length, 'items from localStorage');
+                return;
+            } else {
+                console.warn('⚠️ localStorage has incomplete data (', parsedItems?.length || 0, 'items), falling back to full dataset');
+            }
+        }
+    } catch (error) {
+        console.error('❌ Error loading from localStorage:', error);
+    }
+
+    // Fallback to complete initial dataset
+    console.log('📭 Initializing with complete', initialItems.length, 'item dataset');
     foodItems = [...initialItems];
     saveItems();
 }
+
+// Initialize once
+initializeFoodItems();
+
+// Update stats immediately after initialization
+updateStats();
 
 // Show loading indicator
 function showLoading() {
