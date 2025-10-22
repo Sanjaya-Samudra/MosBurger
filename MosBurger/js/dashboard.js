@@ -676,9 +676,14 @@ function viewOrder(orderId) {
                                 <h4>Order Placed</h4>
                                 <div class="time-stamp">
                                     <i class="fas fa-clock"></i>
-                                    ${new Date(order.timestamp).toLocaleTimeString('en-US', {
+                                    ${new Date(order.timestamp).toLocaleDateString('en-US', {
+                                        month: 'long',
+                                        day: 'numeric',
+                                        year: 'numeric'
+                                    })} at ${new Date(order.timestamp).toLocaleTimeString('en-US', {
                                         hour: '2-digit',
-                                        minute: '2-digit'
+                                        minute: '2-digit',
+                                        second: '2-digit'
                                     })}
                                 </div>
                             </div>
@@ -706,9 +711,14 @@ function viewOrder(orderId) {
                                     <h4>Order Confirmed</h4>
                                     <div class="time-stamp">
                                         <i class="fas fa-clock"></i>
-                                        ${new Date(new Date(order.timestamp).getTime() + 5 * 60 * 1000).toLocaleTimeString('en-US', {
+                                        ${new Date(new Date(order.timestamp).getTime() + 5 * 60 * 1000).toLocaleDateString('en-US', {
+                                            month: 'long',
+                                            day: 'numeric',
+                                            year: 'numeric'
+                                        })} at ${new Date(new Date(order.timestamp).getTime() + 5 * 60 * 1000).toLocaleTimeString('en-US', {
                                             hour: '2-digit',
-                                            minute: '2-digit'
+                                            minute: '2-digit',
+                                            second: '2-digit'
                                         })}
                                     </div>
                                 </div>
@@ -737,9 +747,14 @@ function viewOrder(orderId) {
                                     <h4>Ready for Pickup</h4>
                                     <div class="time-stamp">
                                         <i class="fas fa-clock"></i>
-                                        ${new Date(new Date(order.timestamp).getTime() + 20 * 60 * 1000).toLocaleTimeString('en-US', {
+                                        ${new Date(new Date(order.timestamp).getTime() + 20 * 60 * 1000).toLocaleDateString('en-US', {
+                                            month: 'long',
+                                            day: 'numeric',
+                                            year: 'numeric'
+                                        })} at ${new Date(new Date(order.timestamp).getTime() + 20 * 60 * 1000).toLocaleTimeString('en-US', {
                                             hour: '2-digit',
-                                            minute: '2-digit'
+                                            minute: '2-digit',
+                                            second: '2-digit'
                                         })}
                                     </div>
                                 </div>
@@ -765,9 +780,14 @@ function viewOrder(orderId) {
                                     <h4>Out for Delivery</h4>
                                     <div class="time-stamp">
                                         <i class="fas fa-clock"></i>
-                                        ${new Date(new Date(order.timestamp).getTime() + 25 * 60 * 1000).toLocaleTimeString('en-US', {
+                                        ${new Date(new Date(order.timestamp).getTime() + 25 * 60 * 1000).toLocaleDateString('en-US', {
+                                            month: 'long',
+                                            day: 'numeric',
+                                            year: 'numeric'
+                                        })} at ${new Date(new Date(order.timestamp).getTime() + 25 * 60 * 1000).toLocaleTimeString('en-US', {
                                             hour: '2-digit',
-                                            minute: '2-digit'
+                                            minute: '2-digit',
+                                            second: '2-digit'
                                         })}
                                     </div>
                                 </div>
@@ -793,9 +813,14 @@ function viewOrder(orderId) {
                                     <h4>Delivered</h4>
                                     <div class="time-stamp">
                                         <i class="fas fa-clock"></i>
-                                        ${new Date(new Date(order.timestamp).getTime() + 35 * 60 * 1000).toLocaleTimeString('en-US', {
+                                        ${new Date(new Date(order.timestamp).getTime() + 35 * 60 * 1000).toLocaleDateString('en-US', {
+                                            month: 'long',
+                                            day: 'numeric',
+                                            year: 'numeric'
+                                        })} at ${new Date(new Date(order.timestamp).getTime() + 35 * 60 * 1000).toLocaleTimeString('en-US', {
                                             hour: '2-digit',
-                                            minute: '2-digit'
+                                            minute: '2-digit',
+                                            second: '2-digit'
                                         })}
                                     </div>
                                 </div>
@@ -824,9 +849,14 @@ function viewOrder(orderId) {
                                     <h4>Order Cancelled</h4>
                                     <div class="time-stamp">
                                         <i class="fas fa-clock"></i>
-                                        ${new Date().toLocaleTimeString('en-US', {
+                                        ${new Date().toLocaleDateString('en-US', {
+                                            month: 'long',
+                                            day: 'numeric',
+                                            year: 'numeric'
+                                        })} at ${new Date().toLocaleTimeString('en-US', {
                                             hour: '2-digit',
-                                            minute: '2-digit'
+                                            minute: '2-digit',
+                                            second: '2-digit'
                                         })}
                                     </div>
                                 </div>
@@ -847,6 +877,17 @@ function viewOrder(orderId) {
     setTimeout(() => {
         orderDetailsModal.classList.add('show');
     }, 10);
+}
+
+// Close order modal function
+function closeOrderModal() {
+    const modal = document.getElementById('orderDetailsModal');
+    if (modal) {
+        modal.classList.remove('show');
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
+    }
 }
 
 // Edit order function - opens edit modal
