@@ -2,7 +2,7 @@
 
 A modern, comprehensive burger shop management system built with HTML5, CSS3, and JavaScript ES6+. Features elegant UI design, real-time inventory management, order processing, and beautiful notifications.
 
-![MosBurger Logo](https://via.placeholder.com/200x80/FF6B35/FFFFFF?text=MosBurger)
+![MosBurger Logo](items/MosBurgerLogo.jpg)
 
 ## ✨ Features
 
