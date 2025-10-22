@@ -8,12 +8,14 @@
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 </head>
 <body>
     <div class="app-container">
         <nav class="sidebar">
             <div class="sidebar-header">
-                <img src="https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=50&h=50&fit=crop&crop=center" alt="Logo" class="nav-logo">
+                <img src="items/MosBurgerLogo.jpg" alt="Logo" class="nav-logo">
                 <h2>MOS Burgers</h2>
             </div>
             <ul class="nav-menu">
@@ -27,13 +29,32 @@
         </nav>
         
         <main class="main-content">
-            <header class="content-header">
-                <div class="header-content">
-                    <div class="header-text">
-                        <h1><i class="fas fa-chart-line"></i> Reports & Analytics</h1>
-                        <p>Comprehensive business insights and performance metrics</p>
+            <header class="content-header-modern reports-header">
+                <div class="header-content-modern">
+                    <div class="header-title-section">
+                        <div class="header-icon-modern">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="header-text-modern">
+                            <h1>Reports & Analytics</h1>
+                            <p class="header-subtitle-modern">Comprehensive business insights and performance metrics</p>
+                        </div>
                     </div>
-                    <div class="header-actions">
+                    <div class="header-stats-modern">
+                        <div class="header-stat-item">
+                            <span class="header-stat-value" id="headerTotalRevenue">LKR 0</span>
+                            <span class="header-stat-label">Total Revenue</span>
+                        </div>
+                        <div class="header-stat-item">
+                            <span class="header-stat-value" id="headerTotalOrders">0</span>
+                            <span class="header-stat-label">Total Orders</span>
+                        </div>
+                        <div class="header-stat-item">
+                            <span class="header-stat-value" id="headerAvgOrderValue">LKR 0</span>
+                            <span class="header-stat-label">Avg Order Value</span>
+                        </div>
+                    </div>
+                    <div class="header-actions-modern">
                         <div class="report-period-selector">
                             <select id="reportPeriod" class="premium-select">
                                 <option value="month">This Month</option>
@@ -41,9 +62,9 @@
                                 <option value="custom">Custom Range</option>
                             </select>
                         </div>
-                        <button class="btn btn-primary premium-btn" id="generateReportBtn">
+                        <button class="btn-primary-modern" id="generateReportBtn">
                             <i class="fas fa-file-pdf"></i>
-                            <span>Generate PDF Report</span>
+                            <span>Generate PDF</span>
                         </button>
                     </div>
                 </div>
@@ -88,12 +109,15 @@
                             </select>
                             <select id="salesYear" class="filter-select"></select>
                         </div>
+                        <div class="card-actions">
+                            <button class="btn btn-outline-modern export-btn" id="exportSalesBtn">
+                                <i class="fas fa-download"></i>
+                                <span>Export</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="chart-container premium-chart" id="salesChart">
-                        <div class="chart-placeholder">
-                            <i class="fas fa-chart-line chart-icon"></i>
-                            <p>Interactive sales chart will be displayed here</p>
-                        </div>
+                        <canvas id="salesChartCanvas" width="400" height="200"></canvas>
                     </div>
                     <div class="data-table-container">
                         <table class="premium-table" id="monthlySalesTable">
@@ -124,6 +148,12 @@
                                 <option value="year">This Year</option>
                                 <option value="all">All Time</option>
                             </select>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-outline-modern export-btn" id="exportCustomersBtn">
+                                <i class="fas fa-download"></i>
+                                <span>Export</span>
+                            </button>
                         </div>
                     </div>
                     <div class="premium-table-wrapper">
@@ -157,6 +187,12 @@
                                 <option value="all">All Time</option>
                             </select>
                         </div>
+                        <div class="card-actions">
+                            <button class="btn btn-outline-modern export-btn" id="exportItemsBtn">
+                                <i class="fas fa-download"></i>
+                                <span>Export</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="premium-table-wrapper">
                         <table class="premium-table items-table" id="popularItemsTable">
@@ -185,12 +221,15 @@
                         <div class="card-filters">
                             <select id="annualYear" class="filter-select"></select>
                         </div>
+                        <div class="card-actions">
+                            <button class="btn btn-outline-modern export-btn" id="exportAnnualBtn">
+                                <i class="fas fa-download"></i>
+                                <span>Export</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="chart-container premium-chart" id="annualChart">
-                        <div class="chart-placeholder">
-                            <i class="fas fa-chart-column chart-icon"></i>
-                            <p>Annual performance chart will be displayed here</p>
-                        </div>
+                        <canvas id="annualChartCanvas" width="400" height="200"></canvas>
                     </div>
                     <div class="data-table-container">
                         <table class="premium-table annual-table" id="annualTable">

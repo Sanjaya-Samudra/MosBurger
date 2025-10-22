@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,7 +12,7 @@
     <div class="app-container">
         <nav class="sidebar">
             <div class="sidebar-header">
-                <img src="https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=50&h=50&fit=crop&crop=center" alt="Logo" class="nav-logo">
+                <img src="items/MosBurgerLogo.jpg" alt="Logo" class="nav-logo">
                 <h2>MOS Burgers</h2>
             </div>
             <ul class="nav-menu">
@@ -27,26 +26,75 @@
         </nav>
         
         <main class="main-content">
-            <header class="content-header">
-                <h1>Customer Management</h1>
-                <button class="btn btn-primary" id="addCustomerBtn">
-                    <i class="fas fa-plus"></i> Add Customer
-                </button>
-            </header>
-            
-            <div class="customer-search">
-                <div class="search-container">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="customerSearchInput" placeholder="Search customers by name, phone, or email...">
+            <header class="content-header-modern customer-header">
+                <div class="header-content-modern">
+                    <div class="header-title-section">
+                        <div class="header-icon-modern">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="header-text-modern">
+                            <h1>Customer Management</h1>
+                            <p class="header-subtitle-modern">Manage your customer database and relationships</p>
+                        </div>
+                    </div>
+                    <div class="header-stats-modern">
+                        <div class="header-stat-item">
+                            <span class="header-stat-value" id="totalCustomers">0</span>
+                            <span class="header-stat-label">Total Customers</span>
+                        </div>
+                        <div class="header-stat-item">
+                            <span class="header-stat-value" id="activeCustomers">0</span>
+                            <span class="header-stat-label">Active This Month</span>
+                        </div>
+                        <div class="header-stat-item">
+                            <span class="header-stat-value" id="newCustomers">0</span>
+                            <span class="header-stat-label">New This Month</span>
+                        </div>
+                    </div>
+                    <div class="header-actions-modern">
+                        <button class="btn btn-primary-modern" id="addCustomerBtn">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Add Customer</span>
+                        </button>
+                        <button class="btn btn-outline-modern" id="exportCustomersBtn">
+                            <i class="fas fa-download"></i>
+                            <span>Export</span>
+                        </button>
+                    </div>
                 </div>
-                <select id="sortBy">
-                    <option value="name">Sort by Name</option>
-                    <option value="joinDate">Sort by Join Date</option>
-                    <option value="orders">Sort by Orders</option>
-                </select>
+            </header>
+
+            <!-- Customer Search and Filters -->
+            <div class="customer-controls-section">
+                <div class="search-and-filters">
+                    <div class="search-container-modern">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="customerSearchInput" placeholder="Search customers by name, phone, or email...">
+                    </div>
+                    <div class="filter-controls">
+                        <select id="sortBy" class="filter-select">
+                            <option value="name">Sort by Name</option>
+                            <option value="joinDate">Sort by Join Date</option>
+                            <option value="orders">Sort by Orders</option>
+                            <option value="spent">Sort by Total Spent</option>
+                        </select>
+                        <div class="filter-buttons">
+                            <button class="filter-btn active" data-filter="all">
+                                <i class="fas fa-users"></i> All
+                            </button>
+                            <button class="filter-btn" data-filter="active">
+                                <i class="fas fa-user-check"></i> Active
+                            </button>
+                            <button class="filter-btn" data-filter="new">
+                                <i class="fas fa-user-plus"></i> New
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            
-            <div class="customer-grid" id="customerGrid">
+
+            <!-- Customer Grid -->
+            <div class="customer-grid-modern" id="customerGrid">
                 <!-- Customers will be populated by JavaScript -->
             </div>
         </main>
@@ -54,45 +102,80 @@
     
     <!-- Customer Modal -->
     <div id="customerModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content large-modal">
             <div class="modal-header">
-                <h2 id="customerModalTitle">Add Customer</h2>
+                <h2 id="customerModalTitle"><i class="fas fa-user-plus"></i> Add Customer</h2>
                 <span class="close">&times;</span>
             </div>
-            <form id="customerForm">
-                <div class="form-group">
-                    <label for="customerName">Full Name</label>
-                    <input type="text" id="customerName" required>
-                </div>
-                <div class="form-group">
-                    <label for="customerPhone">Phone Number</label>
-                    <input type="tel" id="customerPhone" required>
-                </div>
-                <div class="form-group">
-                    <label for="customerEmail">Email Address</label>
-                    <input type="email" id="customerEmail">
-                </div>
-                <div class="form-group">
-                    <label for="customerAddress">Address</label>
-                    <textarea id="customerAddress" rows="3"></textarea>
+            <form id="customerForm" class="modern-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="customerName"><i class="fas fa-user"></i> Full Name</label>
+                        <input type="text" id="customerName" required placeholder="Enter customer's full name">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerPhone"><i class="fas fa-phone"></i> Phone Number</label>
+                        <input type="tel" id="customerPhone" required placeholder="Enter phone number">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerEmail"><i class="fas fa-envelope"></i> Email Address</label>
+                        <input type="email" id="customerEmail" placeholder="Enter email address">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerAddress"><i class="fas fa-map-marker-alt"></i> Address</label>
+                        <textarea id="customerAddress" rows="3" placeholder="Enter customer's address"></textarea>
+                    </div>
                 </div>
                 <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" id="cancelCustomerBtn">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Customer</button>
+                    <button type="button" class="btn btn-secondary" id="cancelCustomerBtn">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Customer
+                    </button>
                 </div>
             </form>
         </div>
     </div>
-    
+
     <!-- Customer Details Modal -->
     <div id="customerDetailsModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content large-modal">
             <div class="modal-header">
-                <h2>Customer Details</h2>
+                <h2><i class="fas fa-user"></i> Customer Details</h2>
                 <span class="close">&times;</span>
             </div>
-            <div id="customerDetailsContent">
+            <div id="customerDetailsContent" class="customer-details-modern">
                 <!-- Customer details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Customer Confirmation Modal -->
+    <div id="deleteCustomerModal" class="modal">
+        <div class="modal-content delete-modal">
+            <div class="modal-header delete-header">
+                <h2><i class="fas fa-exclamation-triangle"></i> Delete Customer</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="delete-modal-body">
+                <div class="delete-warning-icon">
+                    <i class="fas fa-user-times"></i>
+                </div>
+                <div class="delete-customer-info" id="deleteCustomerInfo">
+                    <!-- Customer info will be populated here -->
+                </div>
+                <div class="delete-warning-text">
+                    <p>This action cannot be undone. The customer will be permanently removed from the system.</p>
+                </div>
+            </div>
+            <div class="modal-actions delete-actions">
+                <button type="button" class="btn btn-secondary" id="cancelDeleteBtn">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash-alt"></i> Delete Customer
+                </button>
             </div>
         </div>
     </div>

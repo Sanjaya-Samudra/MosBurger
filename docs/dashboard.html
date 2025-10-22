@@ -13,7 +13,7 @@
     <div class="app-container">
         <nav class="sidebar">
             <div class="sidebar-header">
-                <img src="https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=50&h=50&fit=crop&crop=center" alt="Logo" class="nav-logo">
+                <img src="items/MosBurgerLogo.jpg" alt="Logo" class="nav-logo">
                 <h2>MOS Burgers</h2>
             </div>
             <ul class="nav-menu">
@@ -27,90 +27,208 @@
         </nav>
         
         <main class="main-content">
-            <header class="content-header">
-                <h1>Dashboard</h1>
-                <div class="user-info">
-                    <span>Welcome, Admin</span>
-                    <i class="fas fa-user-circle"></i>
+            <header class="content-header-modern dashboard-header">
+                <div class="header-content-modern">
+                    <div class="header-title-section">
+                        <div class="header-icon-modern">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        <div class="header-text-modern">
+                            <h1>Dashboard</h1>
+                            <p class="header-subtitle-modern">Monitor your business performance and key metrics</p>
+                        </div>
+                    </div>
+                    <div class="header-stats-modern">
+                        <div class="header-stat-item">
+                            <span class="header-stat-value" id="headerTotalItems">47</span>
+                            <span class="header-stat-label">Total Items</span>
+                        </div>
+                        <div class="header-stat-item">
+                            <span class="header-stat-value" id="headerTodayOrders">24</span>
+                            <span class="header-stat-label">Today's Orders</span>
+                        </div>
+                        <div class="header-stat-item">
+                            <span class="header-stat-value" id="headerTodaySales">LKR 45,670</span>
+                            <span class="header-stat-label">Today's Sales</span>
+                        </div>
+                    </div>
+                    <div class="header-actions-modern">
+                        <button class="btn-primary-modern">
+                            <i class="fas fa-download"></i>
+                            <span>Export Data</span>
+                        </button>
+                    </div>
                 </div>
             </header>
             
             <div class="dashboard-grid">
-                <div class="stat-card">
+                <div class="stat-card revenue-card">
                     <div class="stat-icon">
                         <i class="fas fa-hamburger"></i>
                     </div>
                     <div class="stat-info">
                         <h3>Total Items</h3>
                         <p class="stat-number" id="totalItems">47</p>
+                        <div class="stat-trend trend-up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+12% from last month</span>
+                        </div>
                     </div>
                 </div>
-                
-                <div class="stat-card">
+
+                <div class="stat-card orders-card">
                     <div class="stat-icon">
                         <i class="fas fa-shopping-cart"></i>
                     </div>
                     <div class="stat-info">
                         <h3>Today's Orders</h3>
                         <p class="stat-number" id="todayOrders">24</p>
+                        <div class="stat-trend trend-up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+8% from yesterday</span>
+                        </div>
                     </div>
                 </div>
-                
-                <div class="stat-card">
+
+                <div class="stat-card customers-card">
                     <div class="stat-icon">
                         <i class="fas fa-users"></i>
                     </div>
                     <div class="stat-info">
                         <h3>Total Customers</h3>
                         <p class="stat-number" id="totalCustomers">156</p>
+                        <div class="stat-trend trend-up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+23% this week</span>
+                        </div>
                     </div>
                 </div>
-                
-                <div class="stat-card">
+
+                <div class="stat-card sales-card">
                     <div class="stat-icon">
                         <i class="fas fa-dollar-sign"></i>
                     </div>
                     <div class="stat-info">
                         <h3>Today's Sales</h3>
                         <p class="stat-number" id="todaySales">LKR 45,670</p>
+                        <div class="stat-trend trend-down">
+                            <i class="fas fa-arrow-down"></i>
+                            <span>-3% from yesterday</span>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <div class="recent-section">
-                <h2>Recent Orders</h2>
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Customer</th>
-                                <th>Items</th>
-                                <th>Total</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="recentOrdersTable">
-                            <tr>
-                                <td>#ORD001</td>
-                                <td>John Doe</td>
-                                <td>Classic Burger, Pepsi</td>
-                                <td>LKR 1,740</td>
-                                <td><span class="status completed">Completed</span></td>
-                            </tr>
-                            <tr>
-                                <td>#ORD002</td>
-                                <td>Jane Smith</td>
-                                <td>Chicken Submarine</td>
-                                <td>LKR 1,800</td>
-                                <td><span class="status pending">Pending</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+            <div class="dashboard-content">
+                <div class="recent-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-clock"></i> Recent Orders</h2>
+                        <button class="btn btn-secondary btn-small">
+                            <i class="fas fa-eye"></i> View All
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Items</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentOrdersTable">
+                                <tr>
+                                    <td>#ORD001</td>
+                                    <td>John Doe</td>
+                                    <td>Classic Burger, Pepsi</td>
+                                    <td>LKR 1,740</td>
+                                    <td><span class="status completed">Completed</span></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-small">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>#ORD002</td>
+                                    <td>Jane Smith</td>
+                                    <td>Chicken Submarine</td>
+                                    <td>LKR 1,800</td>
+                                    <td><span class="status pending">Pending</span></td>
+                                    <td>
+                                        <button class="btn btn-warning btn-small">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="charts-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-chart-line"></i> Analytics Overview</h2>
+                    </div>
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h4><i class="fas fa-chart-bar"></i> Sales Trend</h4>
+                                <select class="chart-filter">
+                                    <option>Last 7 days</option>
+                                    <option>Last 30 days</option>
+                                    <option>Last 3 months</option>
+                                </select>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="salesChart" width="400" height="200"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h4><i class="fas fa-chart-pie"></i> Top Items</h4>
+                                <select class="chart-filter">
+                                    <option>By Quantity</option>
+                                    <option>By Revenue</option>
+                                </select>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="itemsChart" width="400" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/dashboard.js"></script>
+
+    <!-- Order Details Modal -->
+    <div id="orderDetailsModal" class="modal">
+        <div class="modal-content order-modal">
+            <div class="modal-header">
+                <div class="modal-header-content">
+                    <div class="modal-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <div class="modal-title-section">
+                        <h2 id="orderModalTitle">Order Details</h2>
+                        <div class="order-subtitle">Complete order information and timeline</div>
+                    </div>
+                </div>
+                <button class="close-btn" onclick="closeOrderModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="orderDetailsContent">
+                <!-- Order details will be populated here -->
+            </div>
+        </div>
+    </div>
 </body>
 </html>
