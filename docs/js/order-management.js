@@ -1355,6 +1355,18 @@ function removeSelectedCustomer() {
 const customerModal = document.getElementById('customerModal');
 const addCustomerBtn = document.getElementById('addCustomerBtn');
 const customerForm = document.getElementById('customerForm');
+const successModal = document.getElementById('successModal');
+
+// Success modal functions
+function showSuccessModal(title, message) {
+    document.getElementById('successTitle').textContent = title;
+    document.getElementById('successMessage').textContent = message;
+    successModal.style.display = 'block';
+}
+
+function hideSuccessModal() {
+    successModal.style.display = 'none';
+}
 
 addCustomerBtn.addEventListener('click', () => {
     customerModal.style.display = 'block';
@@ -1363,17 +1375,18 @@ addCustomerBtn.addEventListener('click', () => {
 customerForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
+    const formData = new FormData(customerForm);
     const customerData = {
-        name: document.getElementById('customerName').value,
-        phone: document.getElementById('customerPhone').value,
-        email: document.getElementById('customerEmail').value || '',
-        address: document.getElementById('customerAddress').value || '',
+        name: formData.get('customerName'),
+        phone: formData.get('customerPhone'),
+        email: formData.get('customerEmail') || '',
+        address: formData.get('customerAddress') || '',
         joinDate: new Date().toISOString()
     };
 
     // Check if customer already exists
     if (customers.find(c => c.phone === customerData.phone)) {
-        alert('Customer with this phone number already exists!');
+        showNotification('⚠️ A customer with this phone number already exists! Please use a different phone number.', 'warning');
         return;
     }
 
@@ -1383,7 +1396,13 @@ customerForm.addEventListener('submit', (e) => {
     customerModal.style.display = 'none';
     customerForm.reset();
 
-    alert('Customer added successfully!');
+    // Refresh customer list in the selection modal
+    renderCustomerGrid(customers);
+
+    showSuccessModal(
+        'Customer Added Successfully!',
+        'Welcome to MOS Burgers! The customer has been added to your database.'
+    );
 });
 
 // Modal close functionality
@@ -1395,7 +1414,20 @@ document.getElementById('cancelCustomerBtn').addEventListener('click', () => {
     customerModal.style.display = 'none';
 });
 
-// Order search with real-time filtering
+document.getElementById('successOkBtn').addEventListener('click', () => {
+    hideSuccessModal();
+});
+
+// Modal close functionality for clicking outside
+window.addEventListener('click', (e) => {
+    if (e.target === customerModal) {
+        customerModal.style.display = 'none';
+    }
+    if (e.target === successModal) {
+        hideSuccessModal();
+    }
+    // Add other modal close handlers here if needed
+});
 document.getElementById('orderSearch').addEventListener('input', (e) => {
     const query = e.target.value.toLowerCase();
 

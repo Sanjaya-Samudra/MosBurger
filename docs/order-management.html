@@ -190,19 +190,19 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="customerName"><i class="fas fa-user"></i> Full Name</label>
-                        <input type="text" id="customerName" required placeholder="Enter customer's full name">
+                        <input type="text" id="customerName" name="customerName" required placeholder="Enter customer's full name">
                     </div>
                     <div class="form-group">
                         <label for="customerPhone"><i class="fas fa-phone"></i> Phone Number</label>
-                        <input type="tel" id="customerPhone" required placeholder="Enter phone number">
+                        <input type="tel" id="customerPhone" name="customerPhone" required placeholder="Enter phone number">
                     </div>
                     <div class="form-group">
                         <label for="customerEmail"><i class="fas fa-envelope"></i> Email Address</label>
-                        <input type="email" id="customerEmail" placeholder="Enter email address">
+                        <input type="email" id="customerEmail" name="customerEmail" placeholder="Enter email address">
                     </div>
                     <div class="form-group">
                         <label for="customerAddress"><i class="fas fa-map-marker-alt"></i> Address</label>
-                        <textarea id="customerAddress" rows="3" placeholder="Enter customer's address"></textarea>
+                        <textarea id="customerAddress" name="customerAddress" rows="3" placeholder="Enter customer's address"></textarea>
                     </div>
                 </div>
                 <div class="modal-actions">
@@ -264,6 +264,26 @@
                 <button type="button" class="btn btn-danger" id="confirmNewOrderBtn">
                     <i class="fas fa-plus-circle"></i> Start New Order
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content success-modal">
+            <div class="success-modal-body">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="success-content">
+                    <h2 id="successTitle">Customer Added Successfully!</h2>
+                    <p id="successMessage">Welcome to MOS Burgers! The customer has been added to your database.</p>
+                </div>
+                <div class="success-actions">
+                    <button class="btn btn-success-modal" id="successOkBtn">
+                        <i class="fas fa-check"></i> Great!
+                    </button>
+                </div>
             </div>
         </div>
     </div>

@@ -91,6 +91,17 @@ function showNotification(message, type = 'info', duration = 4000) {
     }, duration);
 }
 
+// Success modal functions
+function showSuccessModal(title, message) {
+    document.getElementById('successTitle').textContent = title;
+    document.getElementById('successMessage').textContent = message;
+    successModal.style.display = 'block';
+}
+
+function hideSuccessModal() {
+    successModal.style.display = 'none';
+}
+
 // Get customer order statistics
 function getCustomerStats(customerId) {
     const customerOrders = orders.filter(order => order.customerId === customerId);
@@ -572,6 +583,7 @@ function setupFilterButtons() {
 const customerModal = document.getElementById('customerModal');
 const customerDetailsModal = document.getElementById('customerDetailsModal');
 const deleteCustomerModal = document.getElementById('deleteCustomerModal');
+const successModal = document.getElementById('successModal');
 const addCustomerBtn = document.getElementById('addCustomerBtn');
 const customerForm = document.getElementById('customerForm');
 
@@ -606,7 +618,7 @@ customerForm.addEventListener('submit', (e) => {
         // Check if customer with this phone already exists
         const existingCustomer = customers.find(c => c.phone === customerData.phone);
         if (existingCustomer) {
-            alert('A customer with this phone number already exists!');
+            showNotification('⚠️ A customer with this phone number already exists! Please use a different phone number.', 'warning');
             return;
         }
         // Add new customer
@@ -617,7 +629,10 @@ customerForm.addEventListener('submit', (e) => {
     renderCustomers();
     updateCustomerStats();
     customerModal.style.display = 'none';
-    showNotification(editingCustomerId ? 'Customer updated successfully.' : 'Customer added successfully.', 'success');
+    showSuccessModal(
+        editingCustomerId ? 'Customer Updated!' : 'Customer Added Successfully!',
+        editingCustomerId ? 'Customer information has been updated successfully.' : 'Welcome to MOS Burgers! The customer has been added to your database.'
+    );
 });
 
 // Modal close functionality
@@ -647,6 +662,10 @@ document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
     }
 });
 
+document.getElementById('successOkBtn').addEventListener('click', () => {
+    hideSuccessModal();
+});
+
 window.addEventListener('click', (e) => {
     if (e.target === customerModal) {
         customerModal.style.display = 'none';
@@ -656,6 +675,9 @@ window.addEventListener('click', (e) => {
     }
     if (e.target === deleteCustomerModal) {
         deleteCustomerModal.style.display = 'none';
+    }
+    if (e.target === successModal) {
+        hideSuccessModal();
     }
 });
 

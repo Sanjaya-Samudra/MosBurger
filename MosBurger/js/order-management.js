@@ -342,15 +342,92 @@ function placeOrder() {
 }
 
 // Cancel order - clear all items from cart
-// Cancel order - clear all items from cart
 function cancelOrder() {
     if (currentCart.length === 0) {
         showNotification('Cart is already empty!', 'info');
         return;
     }
 
-    // Show confirmation dialog
-    if (confirm('Are you sure you want to cancel this order and remove all items from the cart?')) {
+    // Calculate cart summary for display
+    const totalItems = currentCart.reduce((sum, item) => sum + item.quantity, 0);
+    const subtotal = currentCart.reduce((sum, item) => sum + (item.cartPrice * item.quantity), 0);
+    const discountPercent = parseFloat(document.getElementById('orderDiscount').value) || 0;
+    const discountAmount = subtotal * (discountPercent / 100);
+    const total = subtotal - discountAmount;
+
+    // Create beautiful confirmation modal
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.style.display = 'flex';
+    modal.innerHTML = `
+        <div class="modal-content cancel-modal">
+            <div class="modal-header">
+                <div class="modal-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="modal-title">
+                    <h2>Cancel Order</h2>
+                    <span>Current Order</span>
+                </div>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="cancel-warning">
+                    <div class="warning-icon">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <h3>Cancel Current Order?</h3>
+                    <p>You are about to cancel your current order and remove all items from the cart. This action <strong>cannot be undone</strong>.</p>
+                </div>
+
+                <div class="order-summary">
+                    <h4><i class="fas fa-shopping-cart"></i> Order Summary</h4>
+                    <div class="summary-details">
+                        <div class="summary-row">
+                            <span>Items in Cart:</span>
+                            <span class="value">${totalItems} items</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Subtotal:</span>
+                            <span class="value">LKR ${subtotal.toFixed(2)}</span>
+                        </div>
+                        ${discountPercent > 0 ? `
+                        <div class="summary-row">
+                            <span>Discount (${discountPercent}%):</span>
+                            <span class="value discount">-LKR ${discountAmount.toFixed(2)}</span>
+                        </div>
+                        ` : ''}
+                        <div class="summary-row total-row">
+                            <span>Total:</span>
+                            <span class="value total">LKR ${total.toFixed(2)}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary cancel-btn">
+                    <i class="fas fa-arrow-left"></i> Keep Order
+                </button>
+                <button class="btn btn-danger confirm-btn">
+                    <i class="fas fa-times-circle"></i> Cancel Order
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Handle modal interactions
+    let confirmed = false;
+
+    const closeModal = () => {
+        document.body.removeChild(modal);
+    };
+
+    const confirmCancel = () => {
+        confirmed = true;
+        closeModal();
+
         // Clear cart
         currentCart = [];
         selectedCustomer = null;
@@ -365,8 +442,24 @@ function cancelOrder() {
         updateSelectedCustomerDisplay();
         updatePlaceOrderButton();
 
-        showNotification('Order cancelled successfully!', 'info');
-    }
+        // Enhanced notification
+        showNotification(`Order cancelled successfully! ${totalItems} item${totalItems !== 1 ? 's' : ''} removed from cart.`, 'warning');
+    };
+
+    // Add event listeners
+    modal.querySelector('.close').addEventListener('click', closeModal);
+    modal.querySelector('.cancel-btn').addEventListener('click', closeModal);
+    modal.querySelector('.confirm-btn').addEventListener('click', confirmCancel);
+
+    // Close modal when clicking outside
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+
+    // Focus the cancel button by default
+    modal.querySelector('.cancel-btn').focus();
 }
 
 // Start new order - clear current cart and reset UI
@@ -467,13 +560,13 @@ function exportOrders() {
             return [
                 order.id,
                 order.customerName,
-                order.customerPhone || '',
+                order.customerId || '', // Customer phone is stored as customerId
                 orderDate.toLocaleDateString(),
                 orderDate.toLocaleTimeString(),
                 order.status || 'Completed',
                 order.items.length,
                 order.subtotal.toFixed(2),
-                order.discountPercent || 0,
+                order.discount || 0, // Discount percentage is stored as 'discount'
                 order.discountAmount.toFixed(2),
                 order.total.toFixed(2),
                 order.paymentMethod || 'Cash'
@@ -1355,6 +1448,40 @@ function removeSelectedCustomer() {
 const customerModal = document.getElementById('customerModal');
 const addCustomerBtn = document.getElementById('addCustomerBtn');
 const customerForm = document.getElementById('customerForm');
+const successModal = document.getElementById('successModal');
+
+console.log('🎯 Modal elements found:');
+console.log('customerModal:', customerModal);
+console.log('addCustomerBtn:', addCustomerBtn);
+console.log('customerForm:', customerForm);
+console.log('successModal:', successModal);
+
+// Success modal functions
+function showSuccessModal(title, message) {
+    console.log('🎉 Showing success modal:', title, message);
+    const successTitleEl = document.getElementById('successTitle');
+    const successMessageEl = document.getElementById('successMessage');
+    console.log('successTitle element:', successTitleEl);
+    console.log('successMessage element:', successMessageEl);
+
+    if (successTitleEl && successMessageEl && successModal) {
+        successTitleEl.textContent = title;
+        successMessageEl.textContent = message;
+        successModal.style.display = 'block';
+        console.log('✅ Success modal should now be visible');
+    } else {
+        console.error('❌ Success modal elements not found:', {
+            successTitleEl,
+            successMessageEl,
+            successModal
+        });
+    }
+}
+
+function hideSuccessModal() {
+    console.log('❌ Hiding success modal');
+    successModal.style.display = 'none';
+}
 
 addCustomerBtn.addEventListener('click', () => {
     customerModal.style.display = 'block';
@@ -1362,28 +1489,40 @@ addCustomerBtn.addEventListener('click', () => {
 
 customerForm.addEventListener('submit', (e) => {
     e.preventDefault();
+    console.log('📝 Customer form submitted');
 
+    const formData = new FormData(customerForm);
     const customerData = {
-        name: document.getElementById('customerName').value,
-        phone: document.getElementById('customerPhone').value,
-        email: document.getElementById('customerEmail').value || '',
-        address: document.getElementById('customerAddress').value || '',
+        name: formData.get('customerName'),
+        phone: formData.get('customerPhone'),
+        email: formData.get('customerEmail') || '',
+        address: formData.get('customerAddress') || '',
         joinDate: new Date().toISOString()
     };
 
+    console.log('👤 Customer data:', customerData);
+
     // Check if customer already exists
     if (customers.find(c => c.phone === customerData.phone)) {
-        alert('Customer with this phone number already exists!');
+        showNotification('⚠️ A customer with this phone number already exists! Please use a different phone number.', 'warning');
         return;
     }
 
     customers.push(customerData);
     localStorage.setItem('customers', JSON.stringify(customers));
+    console.log('💾 Customer saved to localStorage, total customers:', customers.length);
 
     customerModal.style.display = 'none';
     customerForm.reset();
 
-    alert('Customer added successfully!');
+    // Refresh customer list in the selection modal
+    renderCustomerGrid(customers);
+    console.log('🔄 Customer grid refreshed');
+
+    showSuccessModal(
+        'Customer Added Successfully!',
+        'Welcome to MOS Burgers! The customer has been added to your database.'
+    );
 });
 
 // Modal close functionality
@@ -1395,7 +1534,20 @@ document.getElementById('cancelCustomerBtn').addEventListener('click', () => {
     customerModal.style.display = 'none';
 });
 
-// Order search with real-time filtering
+document.getElementById('successOkBtn').addEventListener('click', () => {
+    hideSuccessModal();
+});
+
+// Modal close functionality for all modals
+window.addEventListener('click', (e) => {
+    if (e.target === customerModal) {
+        customerModal.style.display = 'none';
+    }
+    if (e.target === successModal) {
+        hideSuccessModal();
+    }
+    // ... existing modal close handlers
+});
 document.getElementById('orderSearch').addEventListener('input', (e) => {
     const query = e.target.value.toLowerCase();
 
@@ -1654,6 +1806,17 @@ window.forceInitializeOrderData = function() {
 
     alert('Order data initialized! Items: ' + foodItems.length + ', Customers: ' + customers.length);
 };
+
+// Modal close functionality for clicking outside
+window.addEventListener('click', (e) => {
+    if (e.target === customerModal) {
+        customerModal.style.display = 'none';
+    }
+    if (e.target === successModal) {
+        hideSuccessModal();
+    }
+    // Add other modal close handlers here if needed
+});
 
 // Debug function to check current state
 window.debugOrderData = function() {

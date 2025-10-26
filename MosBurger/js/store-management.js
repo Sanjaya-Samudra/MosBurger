@@ -136,12 +136,15 @@ try {
 const form = document.getElementById('itemForm');
 const modal = document.getElementById('itemModal');
 const itemsContainer = document.getElementById('itemsContainer');
-const photoPreview = document.getElementById('photoPreview');
+let photoPreview = document.getElementById('photoPreview');
 const itemPhotoInput = document.getElementById('itemPhoto');
 const modalTitle = document.getElementById('modalTitle');
 const modalIcon = document.getElementById('modalIcon');
 const submitBtnText = document.getElementById('submitBtnText');
 const cancelBtn = document.getElementById('cancelBtn');
+
+// Initialize global reference
+window.photoPreview = photoPreview;
 
 console.log('🚀 JavaScript file loaded successfully!');
 console.log('📋 DOM elements found:', {
@@ -538,8 +541,15 @@ function updateStock(code) {
 let selectedPhotoFile = null;
 
 function initializePhotoUpload() {
+    // Remove any existing event listeners to prevent duplicates
+    const newPhotoPreview = photoPreview.cloneNode(true);
+    photoPreview.parentNode.replaceChild(newPhotoPreview, photoPreview);
+    // Update the references
+    photoPreview = newPhotoPreview;
+    window.photoPreview = newPhotoPreview;
+
     // Photo preview click handler
-    photoPreview.addEventListener('click', () => {
+    newPhotoPreview.addEventListener('click', () => {
         itemPhotoInput.click();
     });
 
@@ -564,7 +574,7 @@ function initializePhotoUpload() {
             // Show preview
             const reader = new FileReader();
             reader.onload = (e) => {
-                photoPreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                newPhotoPreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
             };
             reader.readAsDataURL(file);
         }
@@ -576,7 +586,7 @@ function resetForm() {
     form.reset();
     selectedPhotoFile = null;
     editingItemCode = null;
-    photoPreview.innerHTML = `
+    window.photoPreview.innerHTML = `
         <i class="fas fa-camera"></i>
         <span>Click to upload photo</span>
     `;
@@ -1005,9 +1015,9 @@ function editItem(code) {
 
     // Show current photo if exists
     if (item.image) {
-        photoPreview.innerHTML = `<img src="${item.image}" alt="Current photo">`;
+        window.photoPreview.innerHTML = `<img src="${item.image}" alt="Current photo">`;
     } else {
-        photoPreview.innerHTML = `
+        window.photoPreview.innerHTML = `
             <i class="fas fa-camera"></i>
             <span>Click to upload photo</span>
         `;

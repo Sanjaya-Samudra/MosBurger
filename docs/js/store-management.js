@@ -136,12 +136,15 @@ try {
 const form = document.getElementById('itemForm');
 const modal = document.getElementById('itemModal');
 const itemsContainer = document.getElementById('itemsContainer');
-const photoPreview = document.getElementById('photoPreview');
+let photoPreview = document.getElementById('photoPreview');
 const itemPhotoInput = document.getElementById('itemPhoto');
 const modalTitle = document.getElementById('modalTitle');
 const modalIcon = document.getElementById('modalIcon');
 const submitBtnText = document.getElementById('submitBtnText');
 const cancelBtn = document.getElementById('cancelBtn');
+
+// Initialize global reference
+window.photoPreview = photoPreview;
 
 console.log('🚀 JavaScript file loaded successfully!');
 console.log('📋 DOM elements found:', {
@@ -156,40 +159,40 @@ console.log('📊 Current foodItems length:', foodItems.length);
 // Comprehensive initial items for testing
 const initialItems = [
     // Burgers
-    { code: 'B1001', name: 'Classic Beef Burger (Large)', category: 'Burgers', price: 1200.00, discount: 0, quantity: 25, image: 'items/Classic Beef Burger (Large).jpg', expiryDate: null },
-    { code: 'B1002', name: 'Classic Beef Burger (Regular)', category: 'Burgers', price: 850.00, discount: 15, quantity: 30, image: 'items/Classic Beef Burger (Regular).jpg', expiryDate: null },
-    { code: 'B1003', name: 'Chicken Burger (Large)', category: 'Burgers', price: 1100.00, discount: 0, quantity: 20, image: 'items/Chicken Burger (Large).jpg', expiryDate: null },
-    { code: 'B1004', name: 'Chicken Burger (Regular)', category: 'Burgers', price: 750.00, discount: 10, quantity: 35, image: 'items/Chicken Burger (Regular).jpg', expiryDate: null },
-    { code: 'B1005', name: 'Veggie Burger', category: 'Burgers', price: 900.00, discount: 5, quantity: 15, image: 'items/Veggie Burger.png', expiryDate: null },
+    { code: 'B1001', name: 'Classic Beef Burger (Large)', category: 'Burgers', price: 1200.00, discount: 0, quantity: 25, image: '../../items/Classic Beef Burger (Large).jpg', expiryDate: null },
+    { code: 'B1002', name: 'Classic Beef Burger (Regular)', category: 'Burgers', price: 850.00, discount: 15, quantity: 30, image: '../../items/Classic Beef Burger (Regular).jpg', expiryDate: null },
+    { code: 'B1003', name: 'Chicken Burger (Large)', category: 'Burgers', price: 1100.00, discount: 0, quantity: 20, image: '../../items/Chicken Burger (Large).jpg', expiryDate: null },
+    { code: 'B1004', name: 'Chicken Burger (Regular)', category: 'Burgers', price: 750.00, discount: 10, quantity: 35, image: '../../items/Chicken Burger (Regular).jpg', expiryDate: null },
+    { code: 'B1005', name: 'Veggie Burger', category: 'Burgers', price: 900.00, discount: 5, quantity: 15, image: '../../items/Veggie Burger.png', expiryDate: null },
 
     // Submarines
-    { code: 'S2001', name: 'Crispy Chicken Submarine (Large)', category: 'Submarines', price: 1500.00, discount: 0, quantity: 12, image: 'items/Crispy Chicken Submarine (Large).png', expiryDate: null },
-    { code: 'S2002', name: 'Crispy Chicken Submarine (Regular)', category: 'Submarines', price: 1200.00, discount: 0, quantity: 18, image: 'items/Crispy Chicken Submarine (Regular).png', expiryDate: null },
-    { code: 'S2003', name: 'BBQ Chicken Submarine', category: 'Submarines', price: 1400.00, discount: 0, quantity: 8, image: 'items/BBQ Chicken Submarine.png', expiryDate: null },
+    { code: 'S2001', name: 'Crispy Chicken Submarine (Large)', category: 'Submarines', price: 1500.00, discount: 0, quantity: 12, image: '../../items/Crispy Chicken Submarine (Large).png', expiryDate: null },
+    { code: 'S2002', name: 'Crispy Chicken Submarine (Regular)', category: 'Submarines', price: 1200.00, discount: 0, quantity: 18, image: '../../items/Crispy Chicken Submarine (Regular).png', expiryDate: null },
+    { code: 'S2003', name: 'BBQ Chicken Submarine', category: 'Submarines', price: 1400.00, discount: 0, quantity: 8, image: '../../items/BBQ Chicken Submarine.png', expiryDate: null },
 
     // Fries
-    { code: 'F3001', name: 'Steak Fries (Large)', category: 'Fries', price: 600.00, discount: 0, quantity: 45, image: 'items/Steak Fries (Large).png', expiryDate: null },
-    { code: 'F3002', name: 'Steak Fries (Regular)', category: 'Fries', price: 450.00, discount: 0, quantity: 60, image: 'items/Steak Fries (Regular).png', expiryDate: null },
-    { code: 'F3003', name: 'French Fries (Large)', category: 'Fries', price: 400.00, discount: 0, quantity: 55, image: 'items/French Fries (Large).png', expiryDate: null },
-    { code: 'F3004', name: 'French Fries (Regular)', category: 'Fries', price: 300.00, discount: 0, quantity: 70, image: 'items/French Fries (Regular).png', expiryDate: null },
-    { code: 'F3005', name: 'Sweet Potato Fries', category: 'Fries', price: 550.00, discount: 0, quantity: 25, image: 'items/Sweet Potato Chips.png', expiryDate: null },
+    { code: 'F3001', name: 'Steak Fries (Large)', category: 'Fries', price: 600.00, discount: 0, quantity: 45, image: '../../items/Steak Fries (Large).png', expiryDate: null },
+    { code: 'F3002', name: 'Steak Fries (Regular)', category: 'Fries', price: 450.00, discount: 0, quantity: 60, image: '../../items/Steak Fries (Regular).png', expiryDate: null },
+    { code: 'F3003', name: 'French Fries (Large)', category: 'Fries', price: 400.00, discount: 0, quantity: 55, image: '../../items/French Fries (Large).png', expiryDate: null },
+    { code: 'F3004', name: 'French Fries (Regular)', category: 'Fries', price: 300.00, discount: 0, quantity: 70, image: '../../items/French Fries (Regular).png', expiryDate: null },
+    { code: 'F3005', name: 'Sweet Potato Fries', category: 'Fries', price: 550.00, discount: 0, quantity: 25, image: '../../items/Sweet Potato Chips.png', expiryDate: null },
 
     // Beverages
-    { code: 'D4001', name: 'Coca-Cola (330ml)', category: 'Beverages', price: 150.00, discount: 0, quantity: 100, image: 'items/Coca-Cola (330ml).png', expiryDate: null },
-    { code: 'D4002', name: 'Pepsi (330ml)', category: 'Beverages', price: 140.00, discount: 5, quantity: 90, image: 'items/Pepsi (330ml).png', expiryDate: null },
-    { code: 'D4003', name: 'Sprite (330ml)', category: 'Beverages', price: 140.00, discount: 0, quantity: 85, image: 'items/Sprite (330ml).png', expiryDate: null },
-    { code: 'D4004', name: 'Fanta (330ml)', category: 'Beverages', price: 140.00, discount: 0, quantity: 80, image: 'items/Fanta (330ml).png', expiryDate: null },
-    { code: 'D4005', name: 'Fresh Orange Juice', category: 'Beverages', price: 250.00, discount: 0, quantity: 30, image: 'items/Fresh Orange Juice.png', expiryDate: null },
+    { code: 'D4001', name: 'Coca-Cola (330ml)', category: 'Beverages', price: 150.00, discount: 0, quantity: 100, image: '../../items/Coca-Cola (330ml).png', expiryDate: null },
+    { code: 'D4002', name: 'Pepsi (330ml)', category: 'Beverages', price: 140.00, discount: 5, quantity: 90, image: '../../items/Pepsi (330ml).png', expiryDate: null },
+    { code: 'D4003', name: 'Sprite (330ml)', category: 'Beverages', price: 140.00, discount: 0, quantity: 85, image: '../../items/Sprite (330ml).png', expiryDate: null },
+    { code: 'D4004', name: 'Fanta (330ml)', category: 'Beverages', price: 140.00, discount: 0, quantity: 80, image: '../../items/Fanta (330ml).png', expiryDate: null },
+    { code: 'D4005', name: 'Fresh Orange Juice', category: 'Beverages', price: 250.00, discount: 0, quantity: 30, image: '../../items/Fresh Orange Juice.png', expiryDate: null },
 
     // Chicken Items
-    { code: 'C5001', name: 'Fried Chicken (4 Pieces)', category: 'Chicken', price: 1200.00, discount: 0, quantity: 15, image: 'items/Fried Chicken (4 Pieces).png', expiryDate: null },
-    { code: 'C5002', name: 'Fried Chicken (8 Pieces)', category: 'Chicken', price: 2200.00, discount: 10, quantity: 8, image: 'items/Fried Chicken (8 Pieces).png', expiryDate: null },
-    { code: 'C5003', name: 'Grilled Chicken Breast', category: 'Chicken', price: 800.00, discount: 0, quantity: 20, image: 'items/Grilled Chicken Breast.png', expiryDate: null },
+    { code: 'C5001', name: 'Fried Chicken (4 Pieces)', category: 'Chicken', price: 1200.00, discount: 0, quantity: 15, image: '../../items/Fried Chicken (4 Pieces).png', expiryDate: null },
+    { code: 'C5002', name: 'Fried Chicken (8 Pieces)', category: 'Chicken', price: 2200.00, discount: 10, quantity: 8, image: '../../items/Fried Chicken (8 Pieces).png', expiryDate: null },
+    { code: 'C5003', name: 'Grilled Chicken Breast', category: 'Chicken', price: 800.00, discount: 0, quantity: 20, image: '../../items/Grilled Chicken Breast.png', expiryDate: null },
 
     // Pasta
-    { code: 'P6001', name: 'Creamy Alfredo Pasta', category: 'Pasta', price: 950.00, discount: 0, quantity: 12, image: 'items/Creamy Alfredo Pasta.png', expiryDate: null },
-    { code: 'P6002', name: 'Spaghetti Bolognese', category: 'Pasta', price: 850.00, discount: 0, quantity: 18, image: 'items/Spaghetti Bolognese.png', expiryDate: null },
-    { code: 'P6003', name: 'Penne Arrabbiata', category: 'Pasta', price: 750.00, discount: 0, quantity: 15, image: 'items/Penne Arrabbiata.png', expiryDate: null }
+    { code: 'P6001', name: 'Creamy Alfredo Pasta', category: 'Pasta', price: 950.00, discount: 0, quantity: 12, image: '../../items/Creamy Alfredo Pasta.png', expiryDate: null },
+    { code: 'P6002', name: 'Spaghetti Bolognese', category: 'Pasta', price: 850.00, discount: 0, quantity: 18, image: '../../items/Spaghetti Bolognese.png', expiryDate: null },
+    { code: 'P6003', name: 'Penne Arrabbiata', category: 'Pasta', price: 750.00, discount: 0, quantity: 15, image: '../../items/Penne Arrabbiata.png', expiryDate: null }
 ];
 
 // Initialize food items with comprehensive data
@@ -538,8 +541,15 @@ function updateStock(code) {
 let selectedPhotoFile = null;
 
 function initializePhotoUpload() {
+    // Remove any existing event listeners to prevent duplicates
+    const newPhotoPreview = photoPreview.cloneNode(true);
+    photoPreview.parentNode.replaceChild(newPhotoPreview, photoPreview);
+    // Update the references
+    photoPreview = newPhotoPreview;
+    window.photoPreview = newPhotoPreview;
+
     // Photo preview click handler
-    photoPreview.addEventListener('click', () => {
+    newPhotoPreview.addEventListener('click', () => {
         itemPhotoInput.click();
     });
 
@@ -564,7 +574,7 @@ function initializePhotoUpload() {
             // Show preview
             const reader = new FileReader();
             reader.onload = (e) => {
-                photoPreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                newPhotoPreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
             };
             reader.readAsDataURL(file);
         }
@@ -576,7 +586,7 @@ function resetForm() {
     form.reset();
     selectedPhotoFile = null;
     editingItemCode = null;
-    photoPreview.innerHTML = `
+    window.photoPreview.innerHTML = `
         <i class="fas fa-camera"></i>
         <span>Click to upload photo</span>
     `;
@@ -728,6 +738,7 @@ function filterItems() {
     updateStats();
 }
 
+// Update statistics display
 // Update statistics display
 function updateStats() {
     const totalItems = foodItems.length;
@@ -1004,9 +1015,9 @@ function editItem(code) {
 
     // Show current photo if exists
     if (item.image) {
-        photoPreview.innerHTML = `<img src="${item.image}" alt="Current photo">`;
+        window.photoPreview.innerHTML = `<img src="${item.image}" alt="Current photo">`;
     } else {
-        photoPreview.innerHTML = `
+        window.photoPreview.innerHTML = `
             <i class="fas fa-camera"></i>
             <span>Click to upload photo</span>
         `;

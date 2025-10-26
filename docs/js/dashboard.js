@@ -1501,9 +1501,9 @@ function exportDashboardData() {
         csvContent += 'CUSTOMERS\n';
         csvContent += 'ID,Name,Email,Phone,Address,Total Orders,Total Spent,Join Date\n';
         customers.forEach(customer => {
-            const customerOrders = orders.filter(order => order.customerId === customer.id);
+            const customerOrders = orders.filter(order => order.customerId === customer.phone);
             const totalSpent = customerOrders.reduce((sum, order) => sum + order.total, 0);
-            csvContent += `"${customer.id}","${customer.name}","${customer.email}","${customer.phone || ''}","${customer.address || ''}",${customerOrders.length},"LKR ${totalSpent.toFixed(2)}","${new Date(customer.joinDate || Date.now()).toLocaleDateString()}"\n`;
+            csvContent += `"${customer.phone}","${customer.name}","${customer.email}","${customer.phone || ''}","${customer.address || ''}",${customerOrders.length},"LKR ${totalSpent.toFixed(2)}","${new Date(customer.joinDate || Date.now()).toLocaleDateString()}"\n`;
         });
         csvContent += '\n';
 
@@ -1511,7 +1511,7 @@ function exportDashboardData() {
         csvContent += 'ORDERS\n';
         csvContent += 'Order ID,Customer Name,Items Count,Total Amount,Status,Order Type,Payment Method,Order Date\n';
         orders.forEach(order => {
-            const customer = customers.find(c => c.id === order.customerId);
+            const customer = customers.find(c => c.phone === order.customerId);
             const customerName = customer ? customer.name : 'Unknown Customer';
             const itemsCount = order.items ? order.items.reduce((sum, item) => sum + item.quantity, 0) : 0;
             csvContent += `"${order.id}","${customerName}",${itemsCount},"LKR ${order.total.toFixed(2)}","${order.status || 'pending'}","${order.type || 'dine-in'}","${order.paymentMethod || 'cash'}","${new Date(order.timestamp).toLocaleString()}"\n`;
